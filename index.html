@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#0a0f1e">
 <title>Huella — Your Footprints</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #f0f2f5;
@@ -27,6 +27,7 @@
   --gold: #ffb800;
   --orange: #ff6b2b;
   --purple: #7c3aed;
+  --font-main: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --nav-h: 64px;
   --bottom-h: 72px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -35,7 +36,7 @@
 html,body{height:100%;overflow:hidden}
 body{
   background:var(--bg);
-  font-family:'JetBrains Mono',monospace;
+  font-family:var(--font-main);
   color:var(--ink);
   display:flex;flex-direction:column;
   overscroll-behavior:none;
@@ -50,7 +51,7 @@ body{
   padding-top:env(safe-area-inset-top,0px);
 }
 .logo{
-  font-family:'Syne',sans-serif;font-weight:800;font-size:20px;
+  font-family:var(--font-main);font-weight:800;font-size:20px;
   color:white;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px;
 }
 .logo-dot{
@@ -63,7 +64,7 @@ body{
 .nav-spacer{flex:1}
 .sync-btn{
   display:flex;align-items:center;gap:6px;
-  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;
+  font-family:var(--font-main);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;
   color:#8892a4;background:none;border:1px solid #2a3550;border-radius:6px;
   padding:7px 12px;cursor:pointer;transition:all 0.2s;
 }
@@ -72,7 +73,7 @@ body{
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.4}}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
 .notif{
-  background:var(--red);color:white;font-size:9px;font-family:'Syne',sans-serif;font-weight:700;
+  background:var(--red);color:white;font-size:9px;font-family:var(--font-main);font-weight:700;
   min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;
   padding:0 4px;
 }
@@ -103,7 +104,7 @@ body{
   transition:opacity 0.2s;
 }
 .bnav-icon{font-size:20px;line-height:1;transition:transform 0.2s}
-.bnav-label{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#4a5568;transition:color 0.2s}
+.bnav-label{font-family:var(--font-main);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#4a5568;transition:color 0.2s}
 .bnav-tab.active .bnav-label{color:var(--cyan)}
 .bnav-tab.active .bnav-icon{transform:scale(1.15)}
 
@@ -121,7 +122,7 @@ body{
 }
 .hs-block{text-align:center;padding:0 8px;border-right:1px solid #1a2035}
 .hs-block:last-child{border-right:none}
-.hs-num{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:white;line-height:1}
+.hs-num{font-family:var(--font-main);font-weight:900;font-size:26px;color:white;line-height:1;letter-spacing:-0.5px}
 .hs-lbl{font-size:7px;letter-spacing:0.15em;text-transform:uppercase;color:#4a5568;margin-top:3px}
 
 .milestone-bar{
@@ -140,21 +141,21 @@ body{
 }
 .sinp{
   flex:1;min-width:140px;background:var(--surface2);border:1.5px solid var(--border);
-  border-radius:10px;padding:9px 14px;font-family:'JetBrains Mono',monospace;
+  border-radius:10px;padding:9px 14px;font-family:var(--font-main);
   font-size:12px;color:var(--ink);outline:none;transition:border-color 0.2s,box-shadow 0.2s;
 }
 .sinp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,71,255,0.1)}
 .sinp::placeholder{color:var(--muted)}
 .filter-pills{display:flex;gap:6px;flex-wrap:wrap}
 .pill{
-  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;
+  font-family:var(--font-main);font-size:9px;letter-spacing:0.08em;
   padding:7px 12px;border-radius:20px;border:1.5px solid var(--border);
   background:var(--surface);color:var(--muted);cursor:pointer;transition:all 0.2s;
   text-transform:uppercase;white-space:nowrap;
 }
 .pill.on{background:var(--accent);border-color:var(--accent);color:white}
 .spin-pill{
-  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;
+  font-family:var(--font-main);font-size:9px;letter-spacing:0.08em;
   padding:7px 12px;border-radius:20px;
   background:linear-gradient(135deg,var(--accent),var(--cyan));
   border:none;color:white;cursor:pointer;white-space:nowrap;
@@ -176,12 +177,12 @@ body{
   display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
 }
 .cont-info{flex:1;min-width:0}
-.cont-name{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--ink);letter-spacing:-0.01em}
+.cont-name{font-family:var(--font-main);font-weight:700;font-size:14px;color:var(--ink);letter-spacing:-0.01em}
 .cont-meta{font-size:9px;color:var(--muted);margin-top:2px;letter-spacing:0.05em}
 .cont-right{display:flex;align-items:center;gap:8px}
 .cont-track{width:60px;height:4px;background:var(--border);border-radius:99px;overflow:hidden}
 .cont-fill{height:100%;border-radius:99px;transition:width 0.6s ease}
-.cont-pct{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;min-width:32px;text-align:right}
+.cont-pct{font-family:var(--font-main);font-weight:700;font-size:12px;min-width:32px;text-align:right}
 .chev{font-size:10px;color:var(--muted);transition:transform 0.3s}
 .cont.open .chev{transform:rotate(180deg)}
 
@@ -226,7 +227,7 @@ body{
 }
 .cnote-btn{
   font-size:11px;padding:4px 8px;border:1px solid var(--border);background:none;
-  color:var(--muted);cursor:pointer;border-radius:6px;font-family:'JetBrains Mono',monospace;
+  color:var(--muted);cursor:pointer;border-radius:6px;font-family:var(--font-main);
   transition:all 0.15s;flex-shrink:0;
 }
 .cnote-btn.has{color:var(--accent);border-color:var(--accent)}
@@ -247,7 +248,7 @@ body{
 }
 .badge.earned{opacity:1;filter:none;border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 4px 20px rgba(255,184,0,0.15)}
 .badge-icon{font-size:32px;line-height:1}
-.badge-name{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;color:var(--ink)}
+.badge-name{font-family:var(--font-main);font-weight:700;font-size:11px;color:var(--ink)}
 .badge-desc{font-size:9px;color:var(--muted);line-height:1.5}
 .badge-prog{font-size:9px;color:var(--accent);margin-top:2px;letter-spacing:0.05em}
 
@@ -260,13 +261,13 @@ body{
   padding:16px;position:relative;overflow:hidden;
 }
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--c,var(--accent))}
-.sc-val{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:var(--c,var(--accent));line-height:1;word-break:break-all}
+.sc-val{font-family:var(--font-main);font-weight:900;font-size:26px;color:var(--c,var(--accent));line-height:1;word-break:break-all;letter-spacing:-0.5px}
 .sc-unit{font-size:8px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-top:4px}
 .sc-label{font-size:10px;color:var(--ink2);margin-top:6px;line-height:1.4}
 .stat-card.wide{grid-column:1/-1}
 
 .chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin:0 14px 10px;grid-column:1/-1}
-.chart-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--ink);margin-bottom:14px}
+.chart-title{font-family:var(--font-main);font-weight:700;font-size:13px;color:var(--ink);margin-bottom:14px}
 .year-bars{display:flex;align-items:flex-end;gap:6px;height:80px}
 .ybar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
 .ybar{width:100%;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px;transition:height 0.6s ease}
@@ -274,7 +275,7 @@ body{
 .ybar-count{font-size:8px;color:var(--accent);font-weight:500}
 
 .cont-breakdown{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin:0 14px 10px}
-.cb-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--ink);margin-bottom:14px}
+.cb-title{font-family:var(--font-main);font-weight:700;font-size:13px;color:var(--ink);margin-bottom:14px}
 .cb-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .cb-flag{font-size:14px;width:20px;text-align:center}
 .cb-label{font-size:9px;width:80px;color:var(--ink);letter-spacing:0.03em;flex-shrink:0}
@@ -293,7 +294,7 @@ body{
 }
 .year-group{margin-bottom:20px}
 .year-label{
-  font-family:'Syne',sans-serif;font-weight:800;font-size:24px;color:var(--accent);
+  font-family:var(--font-main);font-weight:800;font-size:24px;color:var(--accent);
   margin-bottom:10px;display:flex;align-items:center;gap:10px;
 }
 .year-label::after{content:'';flex:1;height:1px;background:var(--border)}
@@ -311,10 +312,10 @@ body{
 ══════════════════════════════ */
 .settings-wrap{padding:16px 14px;display:flex;flex-direction:column;gap:10px}
 .setting-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px}
-.setting-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--ink);margin-bottom:4px}
+.setting-title{font-family:var(--font-main);font-weight:700;font-size:13px;color:var(--ink);margin-bottom:4px}
 .setting-sub{font-size:10px;color:var(--muted);margin-bottom:14px;line-height:1.5}
 .setting-btn{
-  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+  font-family:var(--font-main);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
   padding:11px 18px;border-radius:10px;cursor:pointer;transition:all 0.2s;border:1.5px solid;
   display:inline-block;
 }
@@ -328,7 +329,7 @@ body{
   display:flex;align-items:center;gap:10px;
   background:white;border:1.5px solid var(--border);border-radius:10px;
   padding:12px 16px;cursor:pointer;transition:all 0.2s;width:100%;
-  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink);
+  font-family:var(--font-main);font-size:11px;color:var(--ink);
 }
 .google-btn:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(0,71,255,0.1)}
 .google-logo{font-size:18px}
@@ -340,7 +341,7 @@ body{
 .user-email{font-size:9px;color:var(--muted);margin-top:1px}
 .home-select{
   width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;
-  padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink);
+  padding:10px 14px;font-family:var(--font-main);font-size:12px;color:var(--ink);
   outline:none;appearance:none;-webkit-appearance:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238892a4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 14px center;
@@ -349,7 +350,7 @@ body{
   background:linear-gradient(135deg,var(--accent-light),#f0f8ff);
   border:1.5px solid var(--accent);border-radius:14px;padding:18px;
 }
-.challenge-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--accent);margin-bottom:6px}
+.challenge-title{font-family:var(--font-main);font-weight:700;font-size:13px;color:var(--accent);margin-bottom:6px}
 .challenge-text{font-size:11px;color:var(--ink2);line-height:1.6}
 .challenge-prog{display:flex;align-items:center;gap:10px;margin-top:10px}
 .chal-track{flex:1;height:6px;background:rgba(0,71,255,0.15);border-radius:99px;overflow:hidden}
@@ -369,12 +370,12 @@ body{
 }
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal-handle{width:36px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 18px}
-.modal-title{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--ink);margin-bottom:2px;display:flex;align-items:center;gap:10px}
+.modal-title{font-family:var(--font-main);font-weight:800;font-size:20px;color:var(--ink);margin-bottom:2px;display:flex;align-items:center;gap:10px}
 .modal-sub{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
 .mlabel{font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;margin-top:14px}
 .minp,.mtxt,.msel{
   width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;
-  padding:11px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink);
+  padding:11px 14px;font-family:var(--font-main);font-size:12px;color:var(--ink);
   outline:none;resize:vertical;transition:border-color 0.2s;
 }
 .minp:focus,.mtxt:focus,.msel:focus{border-color:var(--accent)}
@@ -408,12 +409,12 @@ body{
   justify-content:center;color:var(--ink);transition:all 0.2s;
 }
 .visits-btn:hover{background:var(--accent);border-color:var(--accent);color:white}
-.visits-count{font-family:'Syne',sans-serif;font-weight:700;font-size:20px;color:var(--accent);min-width:32px;text-align:center}
+.visits-count{font-family:var(--font-main);font-weight:700;font-size:20px;color:var(--accent);min-width:32px;text-align:center}
 .spend-row{display:flex;align-items:center;gap:8px;margin:6px 0}
 .spend-currency{font-size:14px;padding:10px;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--muted)}
 .mbtns{display:flex;gap:8px;margin-top:20px}
 .mbtn{
-  flex:1;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;
+  flex:1;font-family:var(--font-main);font-size:10px;letter-spacing:0.1em;
   text-transform:uppercase;padding:13px;border-radius:12px;cursor:pointer;
   transition:all 0.2s;border:1.5px solid;
 }
@@ -424,7 +425,7 @@ body{
 /* SPIN MODAL */
 .spin-modal{text-align:center;padding:30px 20px calc(30px + var(--safe-bottom))}
 .spin-flag{font-size:60px;display:block;margin-bottom:8px}
-.spin-country{font-family:'Syne',sans-serif;font-weight:800;font-size:30px;color:var(--accent);letter-spacing:-0.02em;margin:8px 0;animation:spinPop 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+.spin-country{font-family:var(--font-main);font-weight:800;font-size:30px;color:var(--accent);letter-spacing:-0.02em;margin:8px 0;animation:spinPop 0.4s cubic-bezier(0.34,1.56,0.64,1)}
 @keyframes spinPop{from{transform:scale(0.4);opacity:0}to{transform:scale(1);opacity:1}}
 .spin-cont{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted)}
 .spin-rarity{font-size:11px;color:var(--purple);margin-top:6px}
@@ -435,7 +436,7 @@ body{
   background:linear-gradient(135deg,#0a0f1e,#1a2035);
   border-radius:14px;padding:20px;margin:0 14px 10px;
 }
-.ai-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:white;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.ai-title{font-family:var(--font-main);font-weight:700;font-size:14px;color:white;margin-bottom:6px;display:flex;align-items:center;gap:8px}
 .ai-sub{font-size:10px;color:#4a5568;margin-bottom:14px;line-height:1.5}
 .ai-suggestions{display:flex;flex-direction:column;gap:8px}
 .ai-sug{
@@ -448,7 +449,7 @@ body{
 .ai-info{flex:1}
 .ai-name{font-size:12px;color:white;font-weight:500}
 .ai-reason{font-size:10px;color:#4a5568;margin-top:2px;line-height:1.4}
-.ai-score{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--cyan)}
+.ai-score{font-family:var(--font-main);font-weight:700;font-size:13px;color:var(--cyan)}
 
 /* CONFETTI */
 #confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:9999}
@@ -470,7 +471,7 @@ body{
   transition:opacity 0.4s;
 }
 .loading.hidden{opacity:0;pointer-events:none}
-.loading-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:36px;color:white;letter-spacing:-0.02em}
+.loading-logo{font-family:var(--font-main);font-weight:800;font-size:36px;color:white;letter-spacing:-0.02em}
 .loading-sub{font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:#4a5568}
 .loading-bar{width:120px;height:2px;background:#1a2035;border-radius:99px;overflow:hidden}
 .loading-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--cyan));width:0%;transition:width 0.5s ease;border-radius:99px}
@@ -840,7 +841,7 @@ self.addEventListener('activate',e=>e.waitUntil(
 
       <div class="setting-card" style="text-align:center;padding:24px">
         <div style="font-size:28px;margin-bottom:8px">👣</div>
-        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--ink)">huella</div>
+        <div style="font-family:var(--font-main);font-weight:700;font-size:16px;color:var(--ink)">huella</div>
         <div style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-top:4px">Your Footprints Across The World</div>
         <div style="font-size:9px;color:var(--muted);margin-top:8px">Home country: India · v2.0</div>
       </div>
@@ -985,52 +986,86 @@ function saveLocal(){
 }
 
 // ══════════════════════════════════════════════
-// GOOGLE DRIVE SYNC
+// GOOGLE DRIVE SYNC (Google Identity Services)
 // ══════════════════════════════════════════════
-const CLIENT_ID = '931106794582-vmh16lnef828jubra1vvhbl9cob1m7qv.apps.googleusercontent.com'; // User must replace
-const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
+const CLIENT_ID = '931106794582-vmh16lnef828jubra1vvhbl9cob1m7qv.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
 const FILE_NAME = 'huella-data.json';
+let accessToken = null;
+let tokenClient = null;
 
-function loadGAPI(){
-  return new Promise((resolve)=>{
-    if(window.gapi){resolve();return}
+function loadGIS(){
+  return new Promise(resolve=>{
+    if(window.google&&window.google.accounts){resolve();return;}
     const s=document.createElement('script');
-    s.src='https://apis.google.com/js/api.js';
-    s.onload=()=>gapi.load('client:auth2',()=>gapi.client.init({clientId:CLIENT_ID,scope:SCOPES}).then(resolve));
+    s.src='https://accounts.google.com/gsi/client';
+    s.onload=resolve;s.onerror=()=>{showToast('Could not load Google library');resolve();};
     document.head.appendChild(s);
   });
 }
 
 async function googleSignIn(){
-  if(CLIENT_ID==='YOUR_GOOGLE_CLIENT_ID'){
-    showToast('⚠️ Add your Google Client ID in Settings to enable sync');
-    return;
-  }
   try{
     setSyncState('syncing','Connecting...');
-    await loadGAPI();
-    const auth=gapi.auth2.getAuthInstance();
-    const user=await auth.signIn();
-    gUser=user;
-    const profile=user.getBasicProfile();
-    updateGoogleUI(profile.getName(),profile.getEmail(),profile.getImageUrl());
-    await syncFromDrive();
-    setSyncState('synced','Synced');
-    showToast('✓ Signed in as '+profile.getName());
+    await loadGIS();
+    if(!window.google||!window.google.accounts){
+      setSyncState('idle','Sync');
+      showToast('Google library failed to load');
+      return;
+    }
+    tokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:CLIENT_ID,
+      scope:SCOPES,
+      callback:async(resp)=>{
+        if(resp.error){
+          setSyncState('idle','Sync');
+          showToast('Sign-in cancelled');
+          return;
+        }
+        accessToken=resp.access_token;
+        localStorage.setItem('h-token',accessToken);
+        await fetchUserInfo();
+        await syncFromDrive();
+        setSyncState('synced','Synced ✓');
+        setTimeout(()=>setSyncState('synced','Synced'),2000);
+      }
+    });
+    tokenClient.requestAccessToken({prompt:'consent'});
   }catch(e){
     setSyncState('idle','Sync');
-    showToast('Sign-in failed: '+e.message);
+    showToast('Sign-in failed: '+(e.message||String(e)));
+    console.error('Sign-in error:',e);
   }
 }
 
+async function fetchUserInfo(){
+  try{
+    const r=await fetch('https://www.googleapis.com/oauth2/v2/userinfo',
+      {headers:{Authorization:'Bearer '+accessToken}});
+    const u=await r.json();
+    gUser=u;
+    updateGoogleUI(u.name||'Google User',u.email||'',u.picture||'');
+    showToast('✓ Signed in as '+(u.name||u.email||'Google User'));
+  }catch(e){console.log('userinfo error',e);}
+}
+
 async function handleSync(){
-  if(!gUser){showToast('Sign in with Google in Settings to enable sync');showPanel('settings',document.getElementById('bnav-settings'));return}
+  if(!accessToken){
+    showToast('Sign in with Google first');
+    showPanel('settings',document.getElementById('bnav-settings'));
+    return;
+  }
   try{
     setSyncState('syncing','Syncing...');
     await syncToDrive();
     setSyncState('synced','Synced ✓');
     setTimeout(()=>setSyncState('synced','Synced'),2000);
-  }catch(e){setSyncState('idle','Sync');showToast('Sync failed')}
+  }catch(e){
+    setSyncState('idle','Sync');
+    showToast('Sync failed — sign in again');
+    accessToken=null;
+    console.error('Sync error:',e);
+  }
 }
 
 function setSyncState(state,label){
@@ -1041,18 +1076,19 @@ function setSyncState(state,label){
 
 async function syncToDrive(){
   const data=JSON.stringify(getData());
-  const token=gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
   const meta={name:FILE_NAME,parents:['appDataFolder']};
   if(driveFileId){
-    await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`,
-      {method:'PATCH',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:data});
-  } else {
+    const r=await fetch('https://www.googleapis.com/upload/drive/v3/files/'+driveFileId+'?uploadType=media',
+      {method:'PATCH',headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},body:data});
+    if(!r.ok) throw new Error('Upload failed: '+r.status);
+  }else{
     const form=new FormData();
     form.append('metadata',new Blob([JSON.stringify(meta)],{type:'application/json'}));
     form.append('file',new Blob([data],{type:'application/json'}));
     const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
-      {method:'POST',headers:{'Authorization':'Bearer '+token},body:form});
+      {method:'POST',headers:{Authorization:'Bearer '+accessToken},body:form});
     const j=await r.json();
+    if(!j.id) throw new Error(JSON.stringify(j));
     driveFileId=j.id;
     localStorage.setItem('h-drive-id',driveFileId);
   }
@@ -1060,16 +1096,15 @@ async function syncToDrive(){
 
 async function syncFromDrive(){
   try{
-    const token=gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
     const r=await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name)',
-      {headers:{'Authorization':'Bearer '+token}});
+      {headers:{Authorization:'Bearer '+accessToken}});
     const j=await r.json();
-    const file=j.files?.find(f=>f.name===FILE_NAME);
+    const file=(j.files||[]).find(f=>f.name===FILE_NAME);
     if(file){
       driveFileId=file.id;
       localStorage.setItem('h-drive-id',driveFileId);
-      const dr=await fetch(`https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`,
-        {headers:{'Authorization':'Bearer '+token}});
+      const dr=await fetch('https://www.googleapis.com/drive/v3/files/'+driveFileId+'?alt=media',
+        {headers:{Authorization:'Bearer '+accessToken}});
       const d=await dr.json();
       visited=new Set(d.visited||[]);
       bucket=new Set(d.bucket||[]);
@@ -1078,23 +1113,37 @@ async function syncFromDrive(){
       saveLocal();
       buildPassport();
       updateStats();
+      showToast('✓ Data loaded from Drive');
+    }else{
+      await syncToDrive();
+      showToast('✓ New sync file created in Drive');
     }
-  }catch(e){console.log('Drive sync error',e)}
+  }catch(e){
+    console.log('Drive sync error',e);
+    showToast('Could not load from Drive');
+  }
 }
 
 function updateGoogleUI(name,email,photo){
   const area=document.getElementById('google-auth-area');
-  area.innerHTML=`<div style="display:flex;align-items:center;gap:12px;padding:4px 0">
-    <img class="user-avatar" src="${photo}" onerror="this.style.display='none'">
-    <div class="user-info"><div class="user-name">${name}</div><div class="user-email">${email}</div></div>
-    <button class="setting-btn btn-ghost" onclick="googleSignOut()" style="font-size:9px;padding:6px 10px">Sign out</button>
-  </div>`;
+  area.innerHTML='<div style="display:flex;align-items:center;gap:12px;padding:4px 0">'
+    +(photo?'<img class="user-avatar" src="'+photo+'" onerror="this.style.display='none'">':'')
+    +'<div class="user-info"><div class="user-name">'+name+'</div><div class="user-email">'+email+'</div></div>'
+    +'<button class="setting-btn btn-ghost" onclick="googleSignOut()" style="font-size:9px;padding:6px 10px">Sign out</button>'
+    +'</div>';
 }
-async function googleSignOut(){
-  if(gUser){await gapi.auth2.getAuthInstance().signOut();gUser=null}
-  document.getElementById('google-auth-area').innerHTML=`<button class="google-btn" onclick="googleSignIn()"><span class="google-logo">G</span><div class="user-info"><div class="user-name">Sign in with Google</div><div class="user-email">Sync across all your devices</div></div></button>`;
+
+function googleSignOut(){
+  if(accessToken&&window.google){
+    try{google.accounts.oauth2.revoke(accessToken,()=>{});}catch(e){}
+  }
+  accessToken=null;gUser=null;tokenClient=null;
+  localStorage.removeItem('h-token');
+  document.getElementById('google-auth-area').innerHTML='<button class="google-btn" onclick="googleSignIn()"><span class="google-logo">G</span><div class="user-info"><div class="user-name">Sign in with Google</div><div class="user-email">Sync across all your devices</div></div></button>';
   setSyncState('idle','Sync');
+  showToast('Signed out');
 }
+
 
 // ══════════════════════════════════════════════
 // BUILD PASSPORT
