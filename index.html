@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Huella">
+<meta name="theme-color" content="#0a0f1e">
+<title>Huella — Your Footprints</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --surface2: #f8faff;
+  --border: #e2e8f0;
+  --ink: #0a0f1e;
+  --ink2: #3d4a5c;
+  --muted: #8892a4;
+  --accent: #0047ff;
+  --accent-light: #e8eeff;
+  --cyan: #00c8ff;
+  --green: #00c08b;
+  --red: #ff3b5c;
+  --gold: #ffb800;
+  --orange: #ff6b2b;
+  --purple: #7c3aed;
+  --nav-h: 64px;
+  --bottom-h: 72px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--bg);
+  font-family:'JetBrains Mono',monospace;
+  color:var(--ink);
+  display:flex;flex-direction:column;
+  overscroll-behavior:none;
+}
+
+/* ── TOP NAV ── */
+.topnav{
+  background:var(--ink);
+  height:var(--nav-h);
+  display:flex;align-items:center;padding:0 20px;
+  gap:12px;flex-shrink:0;
+  padding-top:env(safe-area-inset-top,0px);
+}
+.logo{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:20px;
+  color:white;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px;
+}
+.logo-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--cyan);box-shadow:0 0 10px var(--cyan);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.logo-sub{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:#4a5568;margin-top:1px}
+.nav-spacer{flex:1}
+.sync-btn{
+  display:flex;align-items:center;gap:6px;
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;
+  color:#8892a4;background:none;border:1px solid #2a3550;border-radius:6px;
+  padding:7px 12px;cursor:pointer;transition:all 0.2s;
+}
+.sync-btn:hover,.sync-btn.synced{color:var(--green);border-color:var(--green)}
+.sync-btn.syncing{color:var(--cyan);border-color:var(--cyan);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.4}}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.notif{
+  background:var(--red);color:white;font-size:9px;font-family:'Syne',sans-serif;font-weight:700;
+  min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  padding:0 4px;
+}
+
+/* ── PROGRESS BAR ── */
+.prog-strip{height:2px;background:#e2e8f0;flex-shrink:0}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--cyan));transition:width 0.8s cubic-bezier(0.4,0,0.2,1)}
+
+/* ── SCROLL AREA ── */
+.screen{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth;
+}
+.screen-inner{padding-bottom:calc(var(--bottom-h) + var(--safe-bottom) + 16px)}
+
+/* ── BOTTOM NAV ── */
+.bottomnav{
+  background:var(--ink);
+  height:calc(var(--bottom-h) + var(--safe-bottom));
+  padding-bottom:var(--safe-bottom);
+  display:flex;align-items:flex-start;padding-top:8px;
+  flex-shrink:0;border-top:1px solid #1a2035;
+}
+.bnav-tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+  cursor:pointer;padding:8px 4px;background:none;border:none;
+  transition:opacity 0.2s;
+}
+.bnav-icon{font-size:20px;line-height:1;transition:transform 0.2s}
+.bnav-label{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#4a5568;transition:color 0.2s}
+.bnav-tab.active .bnav-label{color:var(--cyan)}
+.bnav-tab.active .bnav-icon{transform:scale(1.15)}
+
+/* ── PANELS ── */
+.panel{display:none}
+.panel.active{display:block}
+
+/* ══════════════════════════════
+   PASSPORT PANEL
+══════════════════════════════ */
+.hero-stats{
+  background:var(--ink);
+  padding:20px 20px 24px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+}
+.hs-block{text-align:center;padding:0 8px;border-right:1px solid #1a2035}
+.hs-block:last-child{border-right:none}
+.hs-num{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:white;line-height:1}
+.hs-lbl{font-size:7px;letter-spacing:0.15em;text-transform:uppercase;color:#4a5568;margin-top:3px}
+
+.milestone-bar{
+  display:none;
+  background:linear-gradient(90deg,var(--accent),var(--cyan));
+  color:white;padding:12px 16px;font-size:11px;letter-spacing:0.03em;
+  align-items:center;gap:8px;
+}
+.milestone-bar.show{display:flex}
+.milestone-bar .x{margin-left:auto;background:none;border:none;color:white;font-size:18px;cursor:pointer}
+
+.controls{
+  padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:10;
+}
+.sinp{
+  flex:1;min-width:140px;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:10px;padding:9px 14px;font-family:'JetBrains Mono',monospace;
+  font-size:12px;color:var(--ink);outline:none;transition:border-color 0.2s,box-shadow 0.2s;
+}
+.sinp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,71,255,0.1)}
+.sinp::placeholder{color:var(--muted)}
+.filter-pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;
+  padding:7px 12px;border-radius:20px;border:1.5px solid var(--border);
+  background:var(--surface);color:var(--muted);cursor:pointer;transition:all 0.2s;
+  text-transform:uppercase;white-space:nowrap;
+}
+.pill.on{background:var(--accent);border-color:var(--accent);color:white}
+.spin-pill{
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;
+  padding:7px 12px;border-radius:20px;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  border:none;color:white;cursor:pointer;white-space:nowrap;
+}
+
+/* CONTINENT CARDS */
+.conts{padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+
+.cont{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:box-shadow 0.2s}
+.cont.open{box-shadow:0 4px 24px rgba(0,71,255,0.08)}
+
+.cont-hdr{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;
+  user-select:none;transition:background 0.15s;
+}
+.cont-hdr:active{background:var(--surface2)}
+.cont-badge{
+  width:42px;height:42px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
+}
+.cont-info{flex:1;min-width:0}
+.cont-name{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--ink);letter-spacing:-0.01em}
+.cont-meta{font-size:9px;color:var(--muted);margin-top:2px;letter-spacing:0.05em}
+.cont-right{display:flex;align-items:center;gap:8px}
+.cont-track{width:60px;height:4px;background:var(--border);border-radius:99px;overflow:hidden}
+.cont-fill{height:100%;border-radius:99px;transition:width 0.6s ease}
+.cont-pct{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;min-width:32px;text-align:right}
+.chev{font-size:10px;color:var(--muted);transition:transform 0.3s}
+.cont.open .chev{transform:rotate(180deg)}
+
+/* COUNTRY GRID */
+.country-list{display:none;border-top:1px solid var(--border)}
+.cont.open .country-list{display:block}
+
+.citem{
+  display:flex;align-items:center;gap:10px;padding:11px 16px;
+  cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.12s;
+  position:relative;
+}
+.citem:last-child{border-bottom:none}
+.citem:active{background:var(--surface2)}
+.citem.visited{background:#f0f8ff}
+.citem.bucket{background:#fffdf0}
+.citem.hidden{display:none!important}
+
+.ccheck{
+  width:24px;height:24px;border-radius:7px;border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;
+  transition:all 0.2s;background:white;
+}
+.citem.visited .ccheck{color:white;border-color:transparent}
+.citem.bucket .ccheck{background:#fff8e0;border-color:var(--gold);color:var(--gold)}
+
+.cflag{font-size:18px;flex-shrink:0}
+.cinfo{flex:1;min-width:0}
+.cname{font-size:11px;color:var(--ink);line-height:1.3;font-weight:400}
+.citem.visited .cname{color:var(--muted);text-decoration:line-through;text-decoration-color:#c0c8d8}
+.cmeta{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap}
+.cstars{display:flex;gap:1px}
+.cstar{font-size:10px;color:#dde1e9;cursor:pointer;transition:color 0.15s;padding:1px}
+.cstar.on{color:var(--gold)}
+.ctag{font-size:8px;padding:1px 5px;border-radius:3px;background:var(--accent-light);color:var(--accent);letter-spacing:0.05em}
+.cyear{font-size:9px;color:var(--muted);letter-spacing:0.05em}
+.cvisits{font-size:9px;color:var(--green);letter-spacing:0.05em}
+.crarity{font-size:9px;color:var(--purple)}
+.cphoto{
+  width:36px;height:36px;border-radius:6px;object-fit:cover;flex-shrink:0;
+  border:1px solid var(--border);
+}
+.cnote-btn{
+  font-size:11px;padding:4px 8px;border:1px solid var(--border);background:none;
+  color:var(--muted);cursor:pointer;border-radius:6px;font-family:'JetBrains Mono',monospace;
+  transition:all 0.15s;flex-shrink:0;
+}
+.cnote-btn.has{color:var(--accent);border-color:var(--accent)}
+.cnote-btn:active{background:var(--accent);color:white;border-color:var(--accent)}
+
+/* ══════════════════════════════
+   BADGES PANEL
+══════════════════════════════ */
+.badges-grid{
+  padding:16px 14px;
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+}
+.badge{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:16px;display:flex;flex-direction:column;align-items:center;
+  text-align:center;gap:8px;
+  opacity:0.4;filter:grayscale(1);transition:all 0.3s;
+}
+.badge.earned{opacity:1;filter:none;border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 4px 20px rgba(255,184,0,0.15)}
+.badge-icon{font-size:32px;line-height:1}
+.badge-name{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;color:var(--ink)}
+.badge-desc{font-size:9px;color:var(--muted);line-height:1.5}
+.badge-prog{font-size:9px;color:var(--accent);margin-top:2px;letter-spacing:0.05em}
+
+/* ══════════════════════════════
+   STATS PANEL
+══════════════════════════════ */
+.stats-grid{padding:16px 14px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:16px;position:relative;overflow:hidden;
+}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--c,var(--accent))}
+.sc-val{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:var(--c,var(--accent));line-height:1;word-break:break-all}
+.sc-unit{font-size:8px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.sc-label{font-size:10px;color:var(--ink2);margin-top:6px;line-height:1.4}
+.stat-card.wide{grid-column:1/-1}
+
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin:0 14px 10px;grid-column:1/-1}
+.chart-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--ink);margin-bottom:14px}
+.year-bars{display:flex;align-items:flex-end;gap:6px;height:80px}
+.ybar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.ybar{width:100%;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px;transition:height 0.6s ease}
+.ybar-label{font-size:8px;color:var(--muted);letter-spacing:0.05em;white-space:nowrap}
+.ybar-count{font-size:8px;color:var(--accent);font-weight:500}
+
+.cont-breakdown{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin:0 14px 10px}
+.cb-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--ink);margin-bottom:14px}
+.cb-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.cb-flag{font-size:14px;width:20px;text-align:center}
+.cb-label{font-size:9px;width:80px;color:var(--ink);letter-spacing:0.03em;flex-shrink:0}
+.cb-track{flex:1;height:6px;background:var(--border);border-radius:99px;overflow:hidden}
+.cb-fill{height:100%;border-radius:99px;transition:width 0.8s ease}
+.cb-count{font-size:9px;color:var(--muted);width:40px;text-align:right;flex-shrink:0}
+
+/* ══════════════════════════════
+   TIMELINE PANEL
+══════════════════════════════ */
+.timeline-wrap{padding:16px 14px}
+.tl-empty{
+  background:var(--surface);border:1.5px dashed var(--border);border-radius:14px;
+  padding:40px 20px;text-align:center;
+  font-size:11px;color:var(--muted);line-height:2;
+}
+.year-group{margin-bottom:20px}
+.year-label{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:24px;color:var(--accent);
+  margin-bottom:10px;display:flex;align-items:center;gap:10px;
+}
+.year-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.tl-chips{display:flex;flex-wrap:wrap;gap:6px}
+.tl-chip{
+  background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  padding:6px 12px;font-size:10px;color:var(--ink);
+  display:flex;align-items:center;gap:5px;
+  cursor:pointer;transition:border-color 0.15s;
+}
+.tl-chip:hover{border-color:var(--accent)}
+
+/* ══════════════════════════════
+   SETTINGS PANEL
+══════════════════════════════ */
+.settings-wrap{padding:16px 14px;display:flex;flex-direction:column;gap:10px}
+.setting-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px}
+.setting-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--ink);margin-bottom:4px}
+.setting-sub{font-size:10px;color:var(--muted);margin-bottom:14px;line-height:1.5}
+.setting-btn{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+  padding:11px 18px;border-radius:10px;cursor:pointer;transition:all 0.2s;border:1.5px solid;
+  display:inline-block;
+}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:white}
+.btn-primary:hover{background:#0035cc}
+.btn-danger{background:none;border-color:var(--red);color:var(--red)}
+.btn-danger:hover{background:var(--red);color:white}
+.btn-ghost{background:none;border-color:var(--border);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--ink);color:var(--ink)}
+.google-btn{
+  display:flex;align-items:center;gap:10px;
+  background:white;border:1.5px solid var(--border);border-radius:10px;
+  padding:12px 16px;cursor:pointer;transition:all 0.2s;width:100%;
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink);
+}
+.google-btn:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(0,71,255,0.1)}
+.google-logo{font-size:18px}
+.user-avatar{
+  width:36px;height:36px;border-radius:50%;border:2px solid var(--border);object-fit:cover;
+}
+.user-info{flex:1;text-align:left}
+.user-name{font-size:11px;color:var(--ink);font-weight:500}
+.user-email{font-size:9px;color:var(--muted);margin-top:1px}
+.home-select{
+  width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;
+  padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink);
+  outline:none;appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238892a4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+}
+.challenge-card{
+  background:linear-gradient(135deg,var(--accent-light),#f0f8ff);
+  border:1.5px solid var(--accent);border-radius:14px;padding:18px;
+}
+.challenge-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--accent);margin-bottom:6px}
+.challenge-text{font-size:11px;color:var(--ink2);line-height:1.6}
+.challenge-prog{display:flex;align-items:center;gap:10px;margin-top:10px}
+.chal-track{flex:1;height:6px;background:rgba(0,71,255,0.15);border-radius:99px;overflow:hidden}
+.chal-fill{height:100%;background:var(--accent);border-radius:99px;transition:width 0.6s ease}
+.chal-pct{font-size:10px;color:var(--accent);font-weight:600}
+
+/* ══════════════════════════════
+   NOTE / VISIT MODAL
+══════════════════════════════ */
+.overlay{display:none;position:fixed;inset:0;background:rgba(10,15,30,0.7);z-index:999;align-items:flex-end;justify-content:center;padding:0;backdrop-filter:blur(6px)}
+.overlay.open{display:flex}
+.modal{
+  background:var(--surface);border-radius:20px 20px 0 0;
+  padding:20px 20px calc(20px + var(--safe-bottom));
+  width:100%;max-width:600px;max-height:90vh;overflow-y:auto;
+  animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 18px}
+.modal-title{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--ink);margin-bottom:2px;display:flex;align-items:center;gap:10px}
+.modal-sub{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
+.mlabel{font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;margin-top:14px}
+.minp,.mtxt,.msel{
+  width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;
+  padding:11px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink);
+  outline:none;resize:vertical;transition:border-color 0.2s;
+}
+.minp:focus,.mtxt:focus,.msel:focus{border-color:var(--accent)}
+.mtxt{min-height:72px}
+.msel{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238892a4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.mstars{display:flex;gap:10px;margin:6px 0 2px}
+.mstar{font-size:28px;color:#dde1e9;cursor:pointer;transition:all 0.15s}
+.mstar.on{color:var(--gold)}
+.tags-row{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.tag-opt{
+  font-size:10px;padding:6px 12px;border-radius:20px;border:1.5px solid var(--border);
+  background:var(--surface);color:var(--muted);cursor:pointer;transition:all 0.2s;
+}
+.tag-opt.on{background:var(--accent-light);border-color:var(--accent);color:var(--accent)}
+.photo-upload{
+  display:flex;align-items:center;gap:12px;margin:6px 0;
+  padding:12px;border:1.5px dashed var(--border);border-radius:10px;cursor:pointer;
+  transition:border-color 0.2s;background:var(--surface2);
+}
+.photo-upload:hover{border-color:var(--accent)}
+.photo-preview{
+  width:56px;height:56px;border-radius:8px;object-fit:cover;
+  border:1px solid var(--border);
+}
+.photo-upload-text{font-size:11px;color:var(--muted)}
+.photo-upload-text strong{color:var(--accent);display:block;margin-bottom:2px}
+.visits-row{display:flex;align-items:center;gap:12px;margin:6px 0}
+.visits-btn{
+  width:32px;height:32px;border-radius:8px;border:1.5px solid var(--border);
+  background:var(--surface);font-size:16px;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;color:var(--ink);transition:all 0.2s;
+}
+.visits-btn:hover{background:var(--accent);border-color:var(--accent);color:white}
+.visits-count{font-family:'Syne',sans-serif;font-weight:700;font-size:20px;color:var(--accent);min-width:32px;text-align:center}
+.spend-row{display:flex;align-items:center;gap:8px;margin:6px 0}
+.spend-currency{font-size:14px;padding:10px;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--muted)}
+.mbtns{display:flex;gap:8px;margin-top:20px}
+.mbtn{
+  flex:1;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;
+  text-transform:uppercase;padding:13px;border-radius:12px;cursor:pointer;
+  transition:all 0.2s;border:1.5px solid;
+}
+.mbtn-p{background:var(--accent);border-color:var(--accent);color:white}
+.mbtn-p:active{background:#0035cc}
+.mbtn-g{background:none;border-color:var(--border);color:var(--muted)}
+
+/* SPIN MODAL */
+.spin-modal{text-align:center;padding:30px 20px calc(30px + var(--safe-bottom))}
+.spin-flag{font-size:60px;display:block;margin-bottom:8px}
+.spin-country{font-family:'Syne',sans-serif;font-weight:800;font-size:30px;color:var(--accent);letter-spacing:-0.02em;margin:8px 0;animation:spinPop 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes spinPop{from{transform:scale(0.4);opacity:0}to{transform:scale(1);opacity:1}}
+.spin-cont{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted)}
+.spin-rarity{font-size:11px;color:var(--purple);margin-top:6px}
+.spin-btns{display:flex;gap:10px;margin-top:24px}
+
+/* AI SUGGESTER */
+.ai-card{
+  background:linear-gradient(135deg,#0a0f1e,#1a2035);
+  border-radius:14px;padding:20px;margin:0 14px 10px;
+}
+.ai-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:white;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.ai-sub{font-size:10px;color:#4a5568;margin-bottom:14px;line-height:1.5}
+.ai-suggestions{display:flex;flex-direction:column;gap:8px}
+.ai-sug{
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;
+  cursor:pointer;transition:background 0.15s;
+}
+.ai-sug:hover{background:rgba(0,71,255,0.15);border-color:rgba(0,71,255,0.4)}
+.ai-flag{font-size:20px}
+.ai-info{flex:1}
+.ai-name{font-size:12px;color:white;font-weight:500}
+.ai-reason{font-size:10px;color:#4a5568;margin-top:2px;line-height:1.4}
+.ai-score{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--cyan)}
+
+/* CONFETTI */
+#confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:9999}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:calc(var(--bottom-h) + var(--safe-bottom) + 12px);
+  left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:white;padding:10px 18px;border-radius:10px;
+  font-size:11px;letter-spacing:0.05em;opacity:0;transition:all 0.3s;
+  pointer-events:none;white-space:nowrap;z-index:1000;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* LOADING */
+.loading{
+  position:fixed;inset:0;background:var(--ink);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:16px;z-index:9998;
+  transition:opacity 0.4s;
+}
+.loading.hidden{opacity:0;pointer-events:none}
+.loading-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:36px;color:white;letter-spacing:-0.02em}
+.loading-sub{font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:#4a5568}
+.loading-bar{width:120px;height:2px;background:#1a2035;border-radius:99px;overflow:hidden}
+.loading-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--cyan));width:0%;transition:width 0.5s ease;border-radius:99px}
+
+/* ══════════════════════════════
+   DESKTOP RESPONSIVE (768px+)
+══════════════════════════════ */
+@media(min-width:768px){
+  html,body{overflow:auto;height:100%}
+
+  .topnav{padding:0 32px;height:60px}
+  .logo{font-size:22px}
+
+  /* App shell becomes sidebar layout */
+  .app-shell{
+    display:flex;flex-direction:row;
+    height:calc(100vh - 62px); /* minus topnav+progress */
+    overflow:hidden;
+  }
+
+  /* Sidebar nav replaces bottom nav */
+  .bottomnav{
+    width:200px;height:100%;flex-direction:column;
+    border-top:none;border-right:1px solid #1a2035;
+    padding:24px 0 0;align-items:stretch;flex-shrink:0;
+    overflow:hidden;
+  }
+  .bnav-tab{
+    flex:none;flex-direction:row;justify-content:flex-start;
+    padding:14px 24px;gap:12px;border-radius:0;
+  }
+  .bnav-icon{font-size:18px}
+  .bnav-label{font-size:10px;letter-spacing:0.1em;color:#4a5568}
+  .bnav-tab.active{background:rgba(0,200,255,0.08)}
+  .bnav-tab.active .bnav-label{color:var(--cyan)}
+
+  /* Screen scrolls inside */
+  .screen{
+    flex:1;overflow-y:auto;overflow-x:hidden;
+    height:100%;
+  }
+  .screen-inner{padding-bottom:40px}
+
+  /* Wider content areas */
+  .hero-stats{padding:24px 32px;grid-template-columns:repeat(4,1fr)}
+  .hs-num{font-size:34px}
+  .hs-lbl{font-size:9px}
+
+  .controls{padding:14px 28px}
+
+  .conts{padding:16px 24px;gap:10px}
+
+  /* Country grid becomes 2 columns on tablet, 3 on desktop */
+  .country-list{display:none}
+  .cont.open .country-list{display:grid;grid-template-columns:1fr 1fr}
+
+  /* Badges */
+  .badges-grid{grid-template-columns:repeat(3,1fr);padding:20px 24px}
+
+  /* Stats */
+  .stats-grid{grid-template-columns:repeat(3,1fr);padding:20px 24px}
+  .chart-wrap,.cont-breakdown{margin:0 24px 12px}
+  .ai-card{margin:0 24px 24px}
+
+  /* Timeline */
+  .timeline-wrap{padding:20px 24px}
+
+  /* Settings */
+  .settings-wrap{padding:20px 24px;max-width:600px}
+
+  /* Modals become centered dialogs */
+  .overlay{align-items:center;padding:20px}
+  .modal{border-radius:16px;max-width:480px;max-height:85vh}
+  .spin-modal{border-radius:16px;max-width:380px}
+}
+
+@media(min-width:1100px){
+  .cont.open .country-list{grid-template-columns:1fr 1fr 1fr}
+  .badges-grid{grid-template-columns:repeat(4,1fr)}
+  .stats-grid{grid-template-columns:repeat(4,1fr)}
+  .bottomnav{width:220px}
+  .conts{padding:16px 32px}
+}
+
+/* Wrapper needed for sidebar layout */
+.app-shell{display:flex;flex-direction:column;flex:1;overflow:hidden}
+@media(min-width:768px){
+  body{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+  .prog-strip{flex-shrink:0}
+  .app-shell{flex-direction:row;flex:1;min-height:0}
+}
+</style>
+
+<!-- PWA MANIFEST (inline via JS blob) -->
+<script>
+(function(){
+  const manifest={
+    name:"Huella — Your Footprints",
+    short_name:"Huella",
+    description:"Track every country you've visited",
+    start_url:"./",
+    display:"standalone",
+    background_color:"#0a0f1e",
+    theme_color:"#0a0f1e",
+    orientation:"portrait-primary",
+    icons:[
+      {src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230a0f1e'/%3E%3Ctext x='256' y='320' font-size='260' text-anchor='middle' fill='white'%3E%F0%9F%91%A3%3C/text%3E%3Ctext x='256' y='430' font-size='72' text-anchor='middle' fill='%2300c8ff' font-family='sans-serif' font-weight='900' letter-spacing='-2'%3Ehuella%3C/text%3E%3C/svg%3E",sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}
+    ]
+  };
+  const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('link');
+  link.rel='manifest';link.href=url;
+  document.head.appendChild(link);
+})();
+</script>
+
+<!-- SERVICE WORKER (inline registration) -->
+<script>
+if('serviceWorker' in navigator){
+  const swCode=`
+const CACHE='huella-v1';
+const ASSETS=['/'];
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))));
+self.addEventListener('fetch',e=>e.respondWith(
+  caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{
+    const clone=res.clone();
+    caches.open(CACHE).then(c=>c.put(e.request,clone));
+    return res;
+  }).catch(()=>caches.match('/')))
+));
+self.addEventListener('activate',e=>e.waitUntil(
+  caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
+));
+  `;
+  const blob=new Blob([swCode],{type:'text/javascript'});
+  const url=URL.createObjectURL(blob);
+  navigator.serviceWorker.register(url).catch(()=>{});
+}
+</script>
+
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+<div class="toast" id="toast"></div>
+
+<!-- LOADING -->
+<div class="loading" id="loading">
+  <div class="loading-logo">huella</div>
+  <div class="loading-sub">Your footprints across the world</div>
+  <div class="loading-bar"><div class="loading-fill" id="loading-fill"></div></div>
+</div>
+
+<!-- NOTE MODAL -->
+<div class="overlay" id="note-overlay">
+  <div class="modal" id="note-modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><span id="note-flag"></span><span id="note-country-name"></span></div>
+    <div class="modal-sub">Log this visit</div>
+
+    <span class="mlabel">Rating</span>
+    <div class="mstars" id="modal-stars">
+      <span class="mstar" data-s="1">★</span><span class="mstar" data-s="2">★</span>
+      <span class="mstar" data-s="3">★</span><span class="mstar" data-s="4">★</span><span class="mstar" data-s="5">★</span>
+    </div>
+
+    <span class="mlabel">Year First Visited</span>
+    <input class="minp" id="modal-year" type="number" placeholder="2024" min="1900" max="2030">
+
+    <span class="mlabel">Times Visited</span>
+    <div class="visits-row">
+      <button class="visits-btn" onclick="changeVisits(-1)">−</button>
+      <div class="visits-count" id="modal-visits">1</div>
+      <button class="visits-btn" onclick="changeVisits(1)">+</button>
+    </div>
+
+    <span class="mlabel">Trip Type</span>
+    <div class="tags-row" id="modal-tags">
+      <div class="tag-opt" data-tag="solo">✈ Solo</div>
+      <div class="tag-opt" data-tag="family">👨‍👩‍👧 Family</div>
+      <div class="tag-opt" data-tag="couple">💑 Couple</div>
+      <div class="tag-opt" data-tag="friends">👯 Friends</div>
+      <div class="tag-opt" data-tag="backpacking">🎒 Backpacking</div>
+      <div class="tag-opt" data-tag="business">💼 Business</div>
+      <div class="tag-opt" data-tag="honeymoon">🌹 Honeymoon</div>
+    </div>
+
+    <span class="mlabel">Approx. Trip Spend (₹)</span>
+    <div class="spend-row">
+      <div class="spend-currency">₹</div>
+      <input class="minp" id="modal-spend" type="number" placeholder="50000" style="flex:1">
+    </div>
+
+    <span class="mlabel">Photo Memory</span>
+    <label class="photo-upload" id="photo-upload-label">
+      <input type="file" accept="image/*" id="photo-input" style="display:none" onchange="handlePhoto(event)">
+      <img class="photo-preview" id="photo-preview" style="display:none">
+      <div class="photo-upload-text" id="photo-upload-text">
+        <strong>📷 Tap to upload photo</strong>
+        A favourite memory from this trip
+      </div>
+    </label>
+
+    <span class="mlabel">Notes & Memories</span>
+    <textarea class="mtxt" id="modal-note" placeholder="Best food, favourite moment, who you went with..."></textarea>
+
+    <div class="mbtns">
+      <button class="mbtn mbtn-g" onclick="closeNoteModal()">Cancel</button>
+      <button class="mbtn mbtn-p" onclick="saveNote()">Save Visit ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- SPIN MODAL -->
+<div class="overlay" id="spin-overlay">
+  <div class="modal spin-modal">
+    <div class="modal-handle"></div>
+    <span class="spin-flag" id="spin-flag">✈️</span>
+    <div class="spin-country" id="spin-country">—</div>
+    <div class="spin-cont" id="spin-cont"></div>
+    <div class="spin-rarity" id="spin-rarity"></div>
+    <div class="spin-btns">
+      <button class="mbtn mbtn-g" style="flex:1" onclick="document.getElementById('spin-overlay').classList.remove('open')">Close</button>
+      <button class="mbtn mbtn-p" style="flex:2" onclick="doSpin()">🎲 Spin Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOP NAV -->
+<div class="topnav">
+  <div>
+    <div class="logo"><div class="logo-dot"></div>huella</div>
+    <div class="logo-sub">Your footprints</div>
+  </div>
+  <div class="nav-spacer"></div>
+  <button class="sync-btn" id="sync-btn" onclick="handleSync()">
+    <div class="sync-dot"></div>
+    <span id="sync-label">Sync</span>
+  </button>
+</div>
+<div class="prog-strip"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+
+<!-- MILESTONE -->
+<div class="milestone-bar" id="milestone-bar">
+  <span id="milestone-text">🏆</span>
+  <button class="x" onclick="document.getElementById('milestone-bar').classList.remove('show')">✕</button>
+</div>
+
+<!-- APP SHELL -->
+<div class="app-shell">
+
+<!-- BOTTOM / SIDE NAV -->
+<div class="bottomnav">
+  <button class="bnav-tab active" onclick="showPanel('passport',this)" id="bnav-passport"><div class="bnav-icon">🗺️</div><div class="bnav-label">Passport</div></button>
+  <button class="bnav-tab" onclick="showPanel('badges',this)" id="bnav-badges"><div class="bnav-icon">🏆</div><div class="bnav-label">Badges</div></button>
+  <button class="bnav-tab" onclick="showPanel('stats',this)" id="bnav-stats"><div class="bnav-icon">📊</div><div class="bnav-label">Stats</div></button>
+  <button class="bnav-tab" onclick="showPanel('timeline',this)" id="bnav-timeline"><div class="bnav-icon">📅</div><div class="bnav-label">Timeline</div></button>
+  <button class="bnav-tab" onclick="showPanel('settings',this)" id="bnav-settings"><div class="bnav-icon">⚙️</div><div class="bnav-label">Settings</div></button>
+</div>
+
+<!-- MAIN SCROLL AREA -->
+<div class="screen" id="screen">
+
+  <!-- PASSPORT PANEL -->
+  <div class="panel active" id="panel-passport">
+    <div class="hero-stats">
+      <div class="hs-block"><div class="hs-num" id="hs-v">0</div><div class="hs-lbl">Visited</div></div>
+      <div class="hs-block"><div class="hs-num" id="hs-b">0</div><div class="hs-lbl">Wishlist</div></div>
+      <div class="hs-block"><div class="hs-num" id="hs-p">0%</div><div class="hs-lbl">World</div></div>
+      <div class="hs-block"><div class="hs-num" id="hs-r">195</div><div class="hs-lbl">Left</div></div>
+    </div>
+    <div class="controls">
+      <input class="sinp" id="search-inp" placeholder="🔍 Search country..." autocomplete="off">
+      <div class="filter-pills">
+        <button class="pill on" onclick="setFilter('all',this)">All</button>
+        <button class="pill" onclick="setFilter('visited',this)">Visited</button>
+        <button class="pill" onclick="setFilter('bucket',this)">Wishlist</button>
+        <button class="pill" onclick="setFilter('unvisited',this)">Unvisited</button>
+        <button class="spin-pill" onclick="openSpin()">🎲</button>
+      </div>
+    </div>
+    <div class="conts" id="conts-area"></div>
+    <div class="screen-inner"></div>
+  </div>
+
+  <!-- BADGES PANEL -->
+  <div class="panel" id="panel-badges">
+    <div class="badges-grid" id="badges-grid"></div>
+    <div class="screen-inner"></div>
+  </div>
+
+  <!-- STATS PANEL -->
+  <div class="panel" id="panel-stats">
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="chart-wrap" id="chart-wrap">
+      <div class="chart-title">Countries Per Year</div>
+      <div class="year-bars" id="year-bars"></div>
+    </div>
+    <div class="cont-breakdown" id="cont-breakdown">
+      <div class="cb-title">Continent Breakdown</div>
+      <div id="cb-rows"></div>
+    </div>
+    <div class="ai-card">
+      <div class="ai-title">🤖 AI Suggestions</div>
+      <div class="ai-sub">Based on your travel style, here's where to go next</div>
+      <div class="ai-suggestions" id="ai-suggestions"></div>
+    </div>
+    <div class="screen-inner"></div>
+  </div>
+
+  <!-- TIMELINE PANEL -->
+  <div class="panel" id="panel-timeline">
+    <div class="timeline-wrap" id="timeline-wrap"></div>
+    <div class="screen-inner"></div>
+  </div>
+
+  <!-- SETTINGS PANEL -->
+  <div class="panel" id="panel-settings">
+    <div class="settings-wrap">
+
+      <div class="challenge-card" id="challenge-card">
+        <div class="challenge-title">🎯 This Month's Challenge</div>
+        <div class="challenge-text" id="challenge-text">Loading challenge...</div>
+        <div class="challenge-prog">
+          <div class="chal-track"><div class="chal-fill" id="chal-fill" style="width:0%"></div></div>
+          <div class="chal-pct" id="chal-pct">0%</div>
+        </div>
+      </div>
+
+      <div class="setting-card">
+        <div class="setting-title">☁️ Google Drive Sync</div>
+        <div class="setting-sub">Sign in to save your data to Google Drive. Your footprints will never be lost.</div>
+        <div id="google-auth-area">
+          <button class="google-btn" onclick="googleSignIn()">
+            <span class="google-logo">G</span>
+            <div class="user-info"><div class="user-name">Sign in with Google</div><div class="user-email">Sync across all your devices</div></div>
+          </button>
+        </div>
+      </div>
+
+      <div class="setting-card">
+        <div class="setting-title">🏠 Home Country</div>
+        <div class="setting-sub">Used to calculate your furthest destination.</div>
+        <select class="home-select" id="home-select" onchange="saveSettings()">
+          <option value="India">🇮🇳 India</option>
+          <option value="United States">🇺🇸 United States</option>
+          <option value="United Kingdom">🇬🇧 United Kingdom</option>
+          <option value="Australia">🇦🇺 Australia</option>
+          <option value="Germany">🇩🇪 Germany</option>
+          <option value="Japan">🇯🇵 Japan</option>
+          <option value="Brazil">🇧🇷 Brazil</option>
+          <option value="South Africa">🇿🇦 South Africa</option>
+          <option value="Canada">🇨🇦 Canada</option>
+          <option value="France">🇫🇷 France</option>
+        </select>
+      </div>
+
+      <div class="setting-card">
+        <div class="setting-title">💾 Data</div>
+        <div class="setting-sub">Export or reset your travel data.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="setting-btn btn-ghost" onclick="exportData()">Export JSON</button>
+          <button class="setting-btn btn-danger" onclick="resetAll()">Reset All</button>
+        </div>
+      </div>
+
+      <div class="setting-card" style="text-align:center;padding:24px">
+        <div style="font-size:28px;margin-bottom:8px">👣</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--ink)">huella</div>
+        <div style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-top:4px">Your Footprints Across The World</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:8px">Home country: India · v2.0</div>
+      </div>
+
+    </div>
+    <div class="screen-inner"></div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+</div><!-- end screen -->
+</div><!-- end app-shell -->
+
+<script>
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+const CONTS = [
+  {id:'africa',name:'Africa',emoji:'🌍',bg:'#fff7ed',ac:'#f97316',countries:[
+    {n:'Algeria',f:'🇩🇿',r:2},{n:'Angola',f:'🇦🇴',r:4},{n:'Benin',f:'🇧🇯',r:5},{n:'Botswana',f:'🇧🇼',r:4},{n:'Burkina Faso',f:'🇧🇫',r:6},{n:'Burundi',f:'🇧🇮',r:7},{n:'Cabo Verde',f:'🇨🇻',r:4},{n:'Cameroon',f:'🇨🇲',r:4},{n:'Central African Republic',f:'🇨🇫',r:9},{n:'Chad',f:'🇹🇩',r:8},{n:'Comoros',f:'🇰🇲',r:7},{n:'Congo (Republic)',f:'🇨🇬',r:7},{n:'DR Congo',f:'🇨🇩',r:8},{n:'Djibouti',f:'🇩🇯',r:6},{n:'Egypt',f:'🇪🇬',r:2},{n:'Equatorial Guinea',f:'🇬🇶',r:8},{n:'Eritrea',f:'🇪🇷',r:9},{n:'Eswatini',f:'🇸🇿',r:5},{n:'Ethiopia',f:'🇪🇹',r:4},{n:'Gabon',f:'🇬🇦',r:6},{n:'Gambia',f:'🇬🇲',r:5},{n:'Ghana',f:'🇬🇭',r:3},{n:'Guinea',f:'🇬🇳',r:7},{n:'Guinea-Bissau',f:'🇬🇼',r:8},{n:'Ivory Coast',f:'🇨🇮',r:5},{n:'Kenya',f:'🇰🇪',r:3},{n:'Lesotho',f:'🇱🇸',r:5},{n:'Liberia',f:'🇱🇷',r:7},{n:'Libya',f:'🇱🇾',r:8},{n:'Madagascar',f:'🇲🇬',r:4},{n:'Malawi',f:'🇲🇼',r:5},{n:'Mali',f:'🇲🇱',r:7},{n:'Mauritania',f:'🇲🇷',r:7},{n:'Mauritius',f:'🇲🇺',r:3},{n:'Morocco',f:'🇲🇦',r:2},{n:'Mozambique',f:'🇲🇿',r:5},{n:'Namibia',f:'🇳🇦',r:4},{n:'Niger',f:'🇳🇪',r:8},{n:'Nigeria',f:'🇳🇬',r:3},{n:'Rwanda',f:'🇷🇼',r:4},{n:'São Tomé & Príncipe',f:'🇸🇹',r:7},{n:'Senegal',f:'🇸🇳',r:3},{n:'Seychelles',f:'🇸🇨',r:4},{n:'Sierra Leone',f:'🇸🇱',r:6},{n:'Somalia',f:'🇸🇴',r:10},{n:'South Africa',f:'🇿🇦',r:2},{n:'South Sudan',f:'🇸🇸',r:10},{n:'Sudan',f:'🇸🇩',r:9},{n:'Tanzania',f:'🇹🇿',r:3},{n:'Togo',f:'🇹🇬',r:6},{n:'Tunisia',f:'🇹🇳',r:3},{n:'Uganda',f:'🇺🇬',r:4},{n:'Zambia',f:'🇿🇲',r:5},{n:'Zimbabwe',f:'🇿🇼',r:5}
+  ]},
+  {id:'asia',name:'Asia',emoji:'🌏',bg:'#fff0f0',ac:'#ef4444',countries:[
+    {n:'Afghanistan',f:'🇦🇫',r:10},{n:'Armenia',f:'🇦🇲',r:5},{n:'Azerbaijan',f:'🇦🇿',r:4},{n:'Bahrain',f:'🇧🇭',r:4},{n:'Bangladesh',f:'🇧🇩',r:4},{n:'Bhutan',f:'🇧🇹',r:6},{n:'Brunei',f:'🇧🇳',r:5},{n:'Cambodia',f:'🇰🇭',r:3},{n:'China',f:'🇨🇳',r:2},{n:'Cyprus',f:'🇨🇾',r:3},{n:'Georgia',f:'🇬🇪',r:4},{n:'India',f:'🇮🇳',r:1},{n:'Indonesia',f:'🇮🇩',r:2},{n:'Iran',f:'🇮🇷',r:6},{n:'Iraq',f:'🇮🇶',r:8},{n:'Israel',f:'🇮🇱',r:3},{n:'Japan',f:'🇯🇵',r:2},{n:'Jordan',f:'🇯🇴',r:3},{n:'Kazakhstan',f:'🇰🇿',r:5},{n:'Kuwait',f:'🇰🇼',r:4},{n:'Kyrgyzstan',f:'🇰🇬',r:6},{n:'Laos',f:'🇱🇦',r:4},{n:'Lebanon',f:'🇱🇧',r:5},{n:'Malaysia',f:'🇲🇾',r:2},{n:'Maldives',f:'🇲🇻',r:3},{n:'Mongolia',f:'🇲🇳',r:5},{n:'Myanmar',f:'🇲🇲',r:5},{n:'Nepal',f:'🇳🇵',r:3},{n:'North Korea',f:'🇰🇵',r:10},{n:'Oman',f:'🇴🇲',r:4},{n:'Pakistan',f:'🇵🇰',r:5},{n:'Palestine',f:'🇵🇸',r:7},{n:'Philippines',f:'🇵🇭',r:2},{n:'Qatar',f:'🇶🇦',r:3},{n:'Russia',f:'🇷🇺',r:3},{n:'Saudi Arabia',f:'🇸🇦',r:3},{n:'Singapore',f:'🇸🇬',r:2},{n:'South Korea',f:'🇰🇷',r:2},{n:'Sri Lanka',f:'🇱🇰',r:2},{n:'Syria',f:'🇸🇾',r:9},{n:'Taiwan',f:'🇹🇼',r:3},{n:'Tajikistan',f:'🇹🇯',r:7},{n:'Thailand',f:'🇹🇭',r:2},{n:'Timor-Leste',f:'🇹🇱',r:7},{n:'Turkey',f:'🇹🇷',r:2},{n:'Turkmenistan',f:'🇹🇲',r:8},{n:'UAE',f:'🇦🇪',r:2},{n:'Uzbekistan',f:'🇺🇿',r:5},{n:'Vietnam',f:'🇻🇳',r:2},{n:'Yemen',f:'🇾🇪',r:10}
+  ]},
+  {id:'europe',name:'Europe',emoji:'🏰',bg:'#f0f4ff',ac:'#0047ff',countries:[
+    {n:'Albania',f:'🇦🇱',r:4},{n:'Andorra',f:'🇦🇩',r:5},{n:'Austria',f:'🇦🇹',r:2},{n:'Belarus',f:'🇧🇾',r:6},{n:'Belgium',f:'🇧🇪',r:2},{n:'Bosnia & Herzegovina',f:'🇧🇦',r:4},{n:'Bulgaria',f:'🇧🇬',r:3},{n:'Croatia',f:'🇭🇷',r:3},{n:'Czech Republic',f:'🇨🇿',r:2},{n:'Denmark',f:'🇩🇰',r:3},{n:'Estonia',f:'🇪🇪',r:4},{n:'Finland',f:'🇫🇮',r:3},{n:'France',f:'🇫🇷',r:1},{n:'Germany',f:'🇩🇪',r:1},{n:'Greece',f:'🇬🇷',r:2},{n:'Hungary',f:'🇭🇺',r:3},{n:'Iceland',f:'🇮🇸',r:4},{n:'Ireland',f:'🇮🇪',r:3},{n:'Italy',f:'🇮🇹',r:1},{n:'Kosovo',f:'🇽🇰',r:6},{n:'Latvia',f:'🇱🇻',r:4},{n:'Liechtenstein',f:'🇱🇮',r:5},{n:'Lithuania',f:'🇱🇹',r:4},{n:'Luxembourg',f:'🇱🇺',r:4},{n:'Malta',f:'🇲🇹',r:4},{n:'Moldova',f:'🇲🇩',r:6},{n:'Monaco',f:'🇲🇨',r:4},{n:'Montenegro',f:'🇲🇪',r:4},{n:'Netherlands',f:'🇳🇱',r:2},{n:'North Macedonia',f:'🇲🇰',r:5},{n:'Norway',f:'🇳🇴',r:3},{n:'Poland',f:'🇵🇱',r:2},{n:'Portugal',f:'🇵🇹',r:2},{n:'Romania',f:'🇷🇴',r:3},{n:'San Marino',f:'🇸🇲',r:5},{n:'Serbia',f:'🇷🇸',r:4},{n:'Slovakia',f:'🇸🇰',r:4},{n:'Slovenia',f:'🇸🇮',r:4},{n:'Spain',f:'🇪🇸',r:1},{n:'Sweden',f:'🇸🇪',r:2},{n:'Switzerland',f:'🇨🇭',r:2},{n:'Ukraine',f:'🇺🇦',r:4},{n:'United Kingdom',f:'🇬🇧',r:1},{n:'Vatican City',f:'🇻🇦',r:4}
+  ]},
+  {id:'namerica',name:'North America',emoji:'🗽',bg:'#f0fdf4',ac:'#00c08b',countries:[
+    {n:'Antigua & Barbuda',f:'🇦🇬',r:4},{n:'Bahamas',f:'🇧🇸',r:3},{n:'Barbados',f:'🇧🇧',r:4},{n:'Belize',f:'🇧🇿',r:4},{n:'Canada',f:'🇨🇦',r:1},{n:'Costa Rica',f:'🇨🇷',r:3},{n:'Cuba',f:'🇨🇺',r:5},{n:'Dominica',f:'🇩🇲',r:5},{n:'Dominican Republic',f:'🇩🇴',r:3},{n:'El Salvador',f:'🇸🇻',r:5},{n:'Grenada',f:'🇬🇩',r:5},{n:'Guatemala',f:'🇬🇹',r:4},{n:'Haiti',f:'🇭🇹',r:7},{n:'Honduras',f:'🇭🇳',r:5},{n:'Jamaica',f:'🇯🇲',r:3},{n:'Mexico',f:'🇲🇽',r:2},{n:'Nicaragua',f:'🇳🇮',r:5},{n:'Panama',f:'🇵🇦',r:4},{n:'Saint Kitts & Nevis',f:'🇰🇳',r:5},{n:'Saint Lucia',f:'🇱🇨',r:4},{n:'Saint Vincent & Grenadines',f:'🇻🇨',r:5},{n:'Trinidad & Tobago',f:'🇹🇹',r:4},{n:'United States',f:'🇺🇸',r:1}
+  ]},
+  {id:'samerica',name:'South America',emoji:'🌿',bg:'#fdf0f4',ac:'#ff3b5c',countries:[
+    {n:'Argentina',f:'🇦🇷',r:2},{n:'Bolivia',f:'🇧🇴',r:4},{n:'Brazil',f:'🇧🇷',r:2},{n:'Chile',f:'🇨🇱',r:3},{n:'Colombia',f:'🇨🇴',r:3},{n:'Ecuador',f:'🇪🇨',r:4},{n:'Guyana',f:'🇬🇾',r:6},{n:'Paraguay',f:'🇵🇾',r:5},{n:'Peru',f:'🇵🇪',r:3},{n:'Suriname',f:'🇸🇷',r:6},{n:'Uruguay',f:'🇺🇾',r:4},{n:'Venezuela',f:'🇻🇪',r:7}
+  ]},
+  {id:'oceania',name:'Oceania',emoji:'🏝️',bg:'#f0faff',ac:'#00c8ff',countries:[
+    {n:'Australia',f:'🇦🇺',r:2},{n:'Fiji',f:'🇫🇯',r:4},{n:'Kiribati',f:'🇰🇮',r:8},{n:'Marshall Islands',f:'🇲🇭',r:8},{n:'Micronesia',f:'🇫🇲',r:7},{n:'Nauru',f:'🇳🇷',r:9},{n:'New Zealand',f:'🇳🇿',r:3},{n:'Palau',f:'🇵🇼',r:7},{n:'Papua New Guinea',f:'🇵🇬',r:7},{n:'Samoa',f:'🇼🇸',r:6},{n:'Solomon Islands',f:'🇸🇧',r:7},{n:'Tonga',f:'🇹🇴',r:6},{n:'Tuvalu',f:'🇹🇻',r:9},{n:'Vanuatu',f:'🇻🇺',r:7}
+  ]},
+  {id:'antarctica',name:'Antarctica',emoji:'🧊',bg:'#f4f4ff',ac:'#7c3aed',countries:[
+    {n:'Antarctica',f:'🏔️',r:10}
+  ]}
+];
+const TOTAL = CONTS.reduce((s,c)=>s+c.countries.length,0);
+
+// Country coords from India (for furthest calc - simplified lat/lng)
+const COORDS = {
+  'Antarctica':[-90,0],'Australia':[-25,133],'New Zealand':[-41,174],'Argentina':[-34,-64],
+  'Chile':[-30,-71],'Brazil':[-10,-55],'Peru':[-10,-76],'Bolivia':[-17,-65],
+  'Ecuador':[-2,-78],'Colombia':[4,-74],'Venezuela':[8,-66],'Uruguay':[-33,-56],
+  'Paraguay':[-23,-58],'Guyana':[5,-59],'Suriname':[4,-56],'Mexico':[23,-102],
+  'United States':[38,-97],'Canada':[60,-95],'Cuba':[22,-80],'Jamaica':[18,-77],
+  'Haiti':[19,-73],'Dominican Republic':[19,-70],'Bahamas':[25,-77],'Barbados':[13,-59],
+  'Trinidad & Tobago':[11,-61],'Panama':[9,-80],'Costa Rica':[10,-84],'Nicaragua':[13,-85],
+  'Honduras':[15,-87],'El Salvador':[14,-89],'Guatemala':[15,-90],'Belize':[17,-89],
+  'United Kingdom':[54,-2],'France':[46,2],'Germany':[51,10],'Spain':[40,-4],
+  'Italy':[43,12],'Netherlands':[52,5],'Belgium':[50,4],'Switzerland':[47,8],
+  'Austria':[47,14],'Portugal':[39,-8],'Norway':[60,8],'Sweden':[60,18],
+  'Finland':[64,26],'Denmark':[56,10],'Iceland':[65,-18],'Ireland':[53,-8],
+  'Poland':[52,20],'Czech Republic':[50,15],'Hungary':[47,19],'Romania':[46,25],
+  'Bulgaria':[43,25],'Greece':[39,22],'Croatia':[45,16],'Slovenia':[46,15],
+  'Slovakia':[48,19],'Lithuania':[56,24],'Latvia':[57,25],'Estonia':[59,25],
+  'Ukraine':[49,32],'Belarus':[53,28],'Moldova':[47,29],'Albania':[41,20],
+  'Serbia':[44,21],'Montenegro':[42,19],'Bosnia & Herzegovina':[44,17],
+  'North Macedonia':[41,22],'Kosovo':[42,21],'Luxembourg':[50,6],'Malta':[36,14],
+  'Monaco':[44,7],'San Marino':[44,12],'Andorra':[42,1],'Liechtenstein':[47,9],
+  'Vatican City':[42,12],'Russia':[60,100],'India':[20,77],'China':[35,105],
+  'Japan':[36,138],'South Korea':[37,128],'Thailand':[15,101],'Vietnam':[16,108],
+  'Malaysia':[3,112],'Singapore':[1,104],'Indonesia':[-5,120],'Philippines':[13,122],
+  'Myanmar':[17,96],'Cambodia':[12,105],'Laos':[18,103],'Nepal':[28,84],
+  'Bangladesh':[24,90],'Sri Lanka':[7,81],'Pakistan':[30,70],'Afghanistan':[33,65],
+  'Iran':[32,53],'Iraq':[33,44],'Saudi Arabia':[24,45],'UAE':[24,54],
+  'Qatar':[25,51],'Kuwait':[29,48],'Bahrain':[26,51],'Oman':[22,58],
+  'Yemen':[15,48],'Jordan':[31,36],'Israel':[31,35],'Lebanon':[34,36],
+  'Syria':[35,38],'Turkey':[39,35],'Kazakhstan':[48,68],'Uzbekistan':[41,64],
+  'Turkmenistan':[40,60],'Kyrgyzstan':[41,75],'Tajikistan':[39,71],
+  'Azerbaijan':[40,48],'Armenia':[40,45],'Georgia':[42,44],'Cyprus':[35,33],
+  'Mongolia':[46,105],'North Korea':[40,127],'Taiwan':[24,121],'Bhutan':[27,90],
+  'Timor-Leste':[-9,126],'Brunei':[5,115],'Palestine':[32,35],
+  'Egypt':[26,30],'Morocco':[32,-6],'Tunisia':[34,9],'Libya':[27,17],
+  'Algeria':[28,3],'Sudan':[16,30],'Ethiopia':[9,39],'Kenya':[-1,38],
+  'Tanzania':[-6,35],'Uganda':[1,32],'Rwanda':[-2,30],'Burundi':[-3,30],
+  'Mozambique':[-18,35],'Zimbabwe':[-20,30],'Zambia':[-13,28],'Malawi':[-13,34],
+  'Madagascar':[-20,47],'South Africa':[-30,25],'Namibia':[-22,17],'Botswana':[-22,24],
+  'Angola':[-12,18],'Congo (Republic)':[-1,15],'DR Congo':[-4,22],'Cameroon':[5,12],
+  'Nigeria':[10,8],'Ghana':[8,-1],'Ivory Coast':[7,-5],'Senegal':[14,-14],
+  'Mali':[18,-2],'Niger':[16,8],'Chad':[15,19],'Burkina Faso':[12,-2],
+  'Togo':[8,1],'Benin':[9,2],'Eritrea':[15,39],'Somalia':[6,46],
+  'South Sudan':[7,30],'Djibouti':[12,43],'Gabon':[-1,12],'Equatorial Guinea':[2,10],
+  'Sierra Leone':[8,-12],'Liberia':[6,-10],'Guinea':[11,-11],'Guinea-Bissau':[12,-15],
+  'Gambia':[13,-16],'Mauritania':[18,-11],'Cabo Verde':[15,-24],'Comoros':[-12,44],
+  'Seychelles':[-5,55],'Mauritius':[-20,57],'São Tomé & Príncipe':[0,6],
+  'Eswatini':[-26,32],'Lesotho':[-29,28],'Fiji':[-18,178],'Vanuatu':[-16,168],
+  'Solomon Islands':[-9,160],'Papua New Guinea':[-6,147],'Kiribati':[1,174],
+  'Samoa':[-14,-172],'Tonga':[-20,-175],'Palau':[7,134],'Micronesia':[7,158],
+  'Marshall Islands':[7,171],'Nauru':[-1,167],'Tuvalu':[-8,179],
+  'Cuba':[22,-80],'Dominica':[15,-61],'Grenada':[12,-62],'Saint Lucia':[14,-61],
+  'Saint Kitts & Nevis':[17,-63],'Saint Vincent & Grenadines':[13,-61],
+  'Antigua & Barbuda':[17,-62],'Suriname':[4,-56]
+};
+
+function haversine(lat1,lon1,lat2,lon2){
+  const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let visited = new Set();
+let bucket = new Set();
+let notes = {}; // {rating,year,visits,tags:[],spend,photo,note}
+let settings = {home:'India'};
+let currentFilter = 'all';
+let modalCountry = null;
+let modalRating = 0;
+let modalVisits = 1;
+let modalTags = new Set();
+let modalPhoto = null;
+let currentPanel = 'passport';
+let gUser = null;
+let driveFileId = null;
+
+// ══════════════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════════════
+function getData(){return{visited:[...visited],bucket:[...bucket],notes,settings}}
+function loadLocal(){
+  try{
+    visited=new Set(JSON.parse(localStorage.getItem('h-v')||'[]'));
+    bucket=new Set(JSON.parse(localStorage.getItem('h-b')||'[]'));
+    notes=JSON.parse(localStorage.getItem('h-n')||'{}');
+    settings=JSON.parse(localStorage.getItem('h-s')||'{"home":"India"}');
+    driveFileId=localStorage.getItem('h-drive-id')||null;
+  }catch(e){}
+}
+function saveLocal(){
+  localStorage.setItem('h-v',JSON.stringify([...visited]));
+  localStorage.setItem('h-b',JSON.stringify([...bucket]));
+  localStorage.setItem('h-n',JSON.stringify(notes));
+  localStorage.setItem('h-s',JSON.stringify(settings));
+  if(driveFileId) localStorage.setItem('h-drive-id',driveFileId);
+}
+
+// ══════════════════════════════════════════════
+// GOOGLE DRIVE SYNC
+// ══════════════════════════════════════════════
+const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID'; // User must replace
+const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
+const FILE_NAME = 'huella-data.json';
+
+function loadGAPI(){
+  return new Promise((resolve)=>{
+    if(window.gapi){resolve();return}
+    const s=document.createElement('script');
+    s.src='https://apis.google.com/js/api.js';
+    s.onload=()=>gapi.load('client:auth2',()=>gapi.client.init({clientId:CLIENT_ID,scope:SCOPES}).then(resolve));
+    document.head.appendChild(s);
+  });
+}
+
+async function googleSignIn(){
+  if(CLIENT_ID==='YOUR_GOOGLE_CLIENT_ID'){
+    showToast('⚠️ Add your Google Client ID in Settings to enable sync');
+    return;
+  }
+  try{
+    setSyncState('syncing','Connecting...');
+    await loadGAPI();
+    const auth=gapi.auth2.getAuthInstance();
+    const user=await auth.signIn();
+    gUser=user;
+    const profile=user.getBasicProfile();
+    updateGoogleUI(profile.getName(),profile.getEmail(),profile.getImageUrl());
+    await syncFromDrive();
+    setSyncState('synced','Synced');
+    showToast('✓ Signed in as '+profile.getName());
+  }catch(e){
+    setSyncState('idle','Sync');
+    showToast('Sign-in failed: '+e.message);
+  }
+}
+
+async function handleSync(){
+  if(!gUser){showToast('Sign in with Google in Settings to enable sync');showPanel('settings',document.getElementById('bnav-settings'));return}
+  try{
+    setSyncState('syncing','Syncing...');
+    await syncToDrive();
+    setSyncState('synced','Synced ✓');
+    setTimeout(()=>setSyncState('synced','Synced'),2000);
+  }catch(e){setSyncState('idle','Sync');showToast('Sync failed')}
+}
+
+function setSyncState(state,label){
+  const btn=document.getElementById('sync-btn');
+  btn.className='sync-btn'+(state==='synced'?' synced':state==='syncing'?' syncing':'');
+  document.getElementById('sync-label').textContent=label;
+}
+
+async function syncToDrive(){
+  const data=JSON.stringify(getData());
+  const token=gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+  const meta={name:FILE_NAME,parents:['appDataFolder']};
+  if(driveFileId){
+    await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`,
+      {method:'PATCH',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:data});
+  } else {
+    const form=new FormData();
+    form.append('metadata',new Blob([JSON.stringify(meta)],{type:'application/json'}));
+    form.append('file',new Blob([data],{type:'application/json'}));
+    const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
+      {method:'POST',headers:{'Authorization':'Bearer '+token},body:form});
+    const j=await r.json();
+    driveFileId=j.id;
+    localStorage.setItem('h-drive-id',driveFileId);
+  }
+}
+
+async function syncFromDrive(){
+  try{
+    const token=gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+    const r=await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name)',
+      {headers:{'Authorization':'Bearer '+token}});
+    const j=await r.json();
+    const file=j.files?.find(f=>f.name===FILE_NAME);
+    if(file){
+      driveFileId=file.id;
+      localStorage.setItem('h-drive-id',driveFileId);
+      const dr=await fetch(`https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`,
+        {headers:{'Authorization':'Bearer '+token}});
+      const d=await dr.json();
+      visited=new Set(d.visited||[]);
+      bucket=new Set(d.bucket||[]);
+      notes=d.notes||{};
+      settings=d.settings||{home:'India'};
+      saveLocal();
+      buildPassport();
+      updateStats();
+    }
+  }catch(e){console.log('Drive sync error',e)}
+}
+
+function updateGoogleUI(name,email,photo){
+  const area=document.getElementById('google-auth-area');
+  area.innerHTML=`<div style="display:flex;align-items:center;gap:12px;padding:4px 0">
+    <img class="user-avatar" src="${photo}" onerror="this.style.display='none'">
+    <div class="user-info"><div class="user-name">${name}</div><div class="user-email">${email}</div></div>
+    <button class="setting-btn btn-ghost" onclick="googleSignOut()" style="font-size:9px;padding:6px 10px">Sign out</button>
+  </div>`;
+}
+async function googleSignOut(){
+  if(gUser){await gapi.auth2.getAuthInstance().signOut();gUser=null}
+  document.getElementById('google-auth-area').innerHTML=`<button class="google-btn" onclick="googleSignIn()"><span class="google-logo">G</span><div class="user-info"><div class="user-name">Sign in with Google</div><div class="user-email">Sync across all your devices</div></div></button>`;
+  setSyncState('idle','Sync');
+}
+
+// ══════════════════════════════════════════════
+// BUILD PASSPORT
+// ══════════════════════════════════════════════
+function buildPassport(){
+  const el=document.getElementById('conts-area');
+  el.innerHTML='';
+  CONTS.forEach(c=>{
+    const div=document.createElement('div');
+    div.className='cont';div.id='cont-'+c.id;
+    const vc=c.countries.filter(x=>visited.has(x.n)).length;
+    const pct=Math.round(vc/c.countries.length*100);
+    div.innerHTML=`<div class="cont-hdr" onclick="toggleCont('${c.id}')">
+      <div class="cont-badge" style="background:${c.bg}">${c.emoji}</div>
+      <div class="cont-info">
+        <div class="cont-name">${c.name}</div>
+        <div class="cont-meta" id="cmeta-${c.id}">${vc} of ${c.countries.length} visited</div>
+      </div>
+      <div class="cont-right">
+        <div class="cont-track"><div class="cont-fill" id="cfill-${c.id}" style="width:${pct}%;background:${c.ac}"></div></div>
+        <div class="cont-pct" id="cpct-${c.id}" style="color:${c.ac}">${pct}%</div>
+      </div>
+      <div class="chev">▼</div>
+    </div>
+    <div class="country-list" id="clist-${c.id}">
+      ${c.countries.map(x=>buildCountryItem(x,c)).join('')}
+    </div>`;
+    el.appendChild(div);
+  });
+}
+
+function buildCountryItem(x,c){
+  const isV=visited.has(x.n),isB=bucket.has(x.n),nd=notes[x.n]||{};
+  const cls=`citem${isV?' visited':''}${isB&&!isV?' bucket':''}`;
+  const checkContent=isV?'✓':isB?'♡':'';
+  const checkBg=isV?`background:${c.ac};border-color:${c.ac}`:isB?'':'';
+  const stars=isV?`<div class="cstars">${[1,2,3,4,5].map(s=>`<span class="cstar${(nd.rating||0)>=s?' on':''}" onclick="quickStar('${x.n}',${s},event)">${(nd.rating||0)>=s?'★':'☆'}</span>`).join('')}</div>`:'';
+  const tags=(nd.tags||[]).map(t=>`<span class="ctag">${t}</span>`).join('');
+  const yr=nd.year?`<span class="cyear">📅 ${nd.year}</span>`:'';
+  const visits=nd.visits>1?`<span class="cvisits">×${nd.visits}</span>`:'';
+  const rarity=x.r>=7?`<span class="crarity">💎 Rare</span>`:'';
+  const photo=nd.photo?`<img class="cphoto" src="${nd.photo}" alt="">`:'';
+  const hasData=nd.note||nd.year||nd.rating||nd.photo;
+  return `<div class="${cls}" id="ci-${x.n.replace(/[^a-z0-9]/gi,'_')}" onclick="toggleVisited('${x.n}','${c.id}',event)" oncontextmenu="toggleBucket('${x.n}',event)">
+    <div class="ccheck" style="${checkBg}">${checkContent}</div>
+    <div class="cflag">${x.f}</div>
+    <div class="cinfo">
+      <div class="cname">${x.n}</div>
+      <div class="cmeta">${stars}${tags}${yr}${visits}${rarity}</div>
+    </div>
+    ${photo}
+    ${isV?`<button class="cnote-btn${hasData?' has':''}" onclick="openNoteModal('${x.n}',event)">📝</button>`:''}
+  </div>`;
+}
+
+function toggleCont(id){document.getElementById('cont-'+id).classList.toggle('open')}
+
+function refreshCountryItem(name){
+  const c=CONTS.find(c=>c.countries.some(x=>x.n===name));
+  if(!c)return;
+  const x=c.countries.find(x=>x.n===name);
+  const id='ci-'+name.replace(/[^a-z0-9]/gi,'_');
+  const el=document.getElementById(id);
+  if(el)el.outerHTML=buildCountryItem(x,c);
+  applyFilter();
+  const vc=c.countries.filter(x=>visited.has(x.n)).length;
+  const pct=Math.round(vc/c.countries.length*100);
+  const cm=document.getElementById('cmeta-'+c.id);
+  const cf=document.getElementById('cfill-'+c.id);
+  const cp=document.getElementById('cpct-'+c.id);
+  if(cm)cm.textContent=`${vc} of ${c.countries.length} visited`;
+  if(cf)cf.style.width=pct+'%';
+  if(cp)cp.textContent=pct+'%';
+}
+
+// ══════════════════════════════════════════════
+// INTERACTIONS
+// ══════════════════════════════════════════════
+function toggleVisited(name,contId,e){
+  if(e.target.closest('.cnote-btn')||e.target.closest('.cstar'))return;
+  if(visited.has(name)){
+    visited.delete(name);
+  } else {
+    visited.add(name);
+    bucket.delete(name);
+    spawnConfetti();
+    checkMilestones();
+  }
+  saveLocal();
+  refreshCountryItem(name);
+  updateStats();
+  updateBadges();
+}
+
+function toggleBucket(name,e){
+  e.preventDefault();
+  if(visited.has(name))return;
+  bucket.has(name)?bucket.delete(name):bucket.add(name);
+  saveLocal();
+  refreshCountryItem(name);
+  updateStats();
+}
+
+function quickStar(name,s,e){
+  e.stopPropagation();
+  if(!notes[name])notes[name]={};
+  notes[name].rating=notes[name].rating===s?0:s;
+  saveLocal();
+  refreshCountryItem(name);
+}
+
+// ══════════════════════════════════════════════
+// NOTE MODAL
+// ══════════════════════════════════════════════
+function openNoteModal(name,e){
+  if(e)e.stopPropagation();
+  modalCountry=name;
+  const c=CONTS.find(c=>c.countries.some(x=>x.n===name));
+  const x=c?.countries.find(x=>x.n===name);
+  const nd=notes[name]||{};
+  document.getElementById('note-flag').textContent=x?.f||'';
+  document.getElementById('note-country-name').textContent=name;
+  document.getElementById('modal-year').value=nd.year||'';
+  document.getElementById('modal-note').value=nd.note||'';
+  document.getElementById('modal-spend').value=nd.spend||'';
+  modalRating=nd.rating||0;
+  modalVisits=nd.visits||1;
+  modalTags=new Set(nd.tags||[]);
+  modalPhoto=nd.photo||null;
+  document.getElementById('modal-visits').textContent=modalVisits;
+  updateModalStars();
+  updateModalTags();
+  updatePhotoPreview();
+  document.getElementById('note-overlay').classList.add('open');
+}
+function closeNoteModal(){document.getElementById('note-overlay').classList.remove('open');modalCountry=null}
+function saveNote(){
+  if(!modalCountry)return;
+  if(!notes[modalCountry])notes[modalCountry]={};
+  notes[modalCountry].rating=modalRating;
+  notes[modalCountry].year=document.getElementById('modal-year').value;
+  notes[modalCountry].note=document.getElementById('modal-note').value;
+  notes[modalCountry].spend=document.getElementById('modal-spend').value;
+  notes[modalCountry].visits=modalVisits;
+  notes[modalCountry].tags=[...modalTags];
+  notes[modalCountry].photo=modalPhoto;
+  saveLocal();
+  refreshCountryItem(modalCountry);
+  closeNoteModal();
+  showToast('Visit logged ✓');
+}
+
+document.querySelectorAll('.mstar').forEach(s=>s.addEventListener('click',()=>{
+  const v=parseInt(s.dataset.s);modalRating=modalRating===v?0:v;updateModalStars();
+}));
+function updateModalStars(){document.querySelectorAll('.mstar').forEach(s=>s.classList.toggle('on',parseInt(s.dataset.s)<=modalRating))}
+
+function changeVisits(d){modalVisits=Math.max(1,modalVisits+d);document.getElementById('modal-visits').textContent=modalVisits}
+
+document.querySelectorAll('.tag-opt').forEach(t=>t.addEventListener('click',()=>{
+  const tag=t.dataset.tag;modalTags.has(tag)?modalTags.delete(tag):modalTags.add(tag);
+  updateModalTags();
+}));
+function updateModalTags(){document.querySelectorAll('.tag-opt').forEach(t=>t.classList.toggle('on',modalTags.has(t.dataset.tag)))}
+
+function handlePhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{modalPhoto=ev.target.result;updatePhotoPreview()}
+  reader.readAsDataURL(file);
+}
+function updatePhotoPreview(){
+  const prev=document.getElementById('photo-preview');
+  const txt=document.getElementById('photo-upload-text');
+  if(modalPhoto){
+    prev.src=modalPhoto;prev.style.display='block';
+    txt.innerHTML='<strong>📷 Change photo</strong>Tap to replace';
+  } else {
+    prev.style.display='none';
+    txt.innerHTML='<strong>📷 Tap to upload photo</strong>A favourite memory from this trip';
+  }
+}
+
+document.getElementById('note-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeNoteModal()});
+
+// ══════════════════════════════════════════════
+// SPIN GLOBE
+// ══════════════════════════════════════════════
+function openSpin(){doSpin();document.getElementById('spin-overlay').classList.add('open')}
+function doSpin(){
+  const all=CONTS.flatMap(c=>c.countries.map(x=>({...x,cont:c.name})));
+  const pool=all.filter(x=>!visited.has(x.n));
+  const pick=(pool.length?pool:all)[Math.floor(Math.random()*(pool.length||all.length))];
+  document.getElementById('spin-flag').textContent=pick.f;
+  const cn=document.getElementById('spin-country');
+  cn.textContent=pick.n;cn.style.animation='none';void cn.offsetWidth;cn.style.animation='spinPop 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+  document.getElementById('spin-cont').textContent=pick.cont;
+  const rarityLabels=['','','Common','Common','Uncommon','Uncommon','Rare','Rare','Very Rare','Exotic','Legendary'];
+  document.getElementById('spin-rarity').textContent=pick.r>=3?`💎 Rarity: ${rarityLabels[pick.r]||'Legendary'}`:'';
+}
+document.getElementById('spin-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)document.getElementById('spin-overlay').classList.remove('open')});
+
+// ══════════════════════════════════════════════
+// FILTER & SEARCH
+// ══════════════════════════════════════════════
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.pill').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  applyFilter();
+}
+function applyFilter(){
+  const q=document.getElementById('search-inp').value.toLowerCase().trim();
+  CONTS.forEach(c=>{
+    const list=document.getElementById('clist-'+c.id);if(!list)return;
+    let visible=0;
+    list.querySelectorAll('.citem').forEach(el=>{
+      const name=el.querySelector('.cname').textContent.toLowerCase();
+      const matchQ=!q||name.includes(q);
+      const isV=el.classList.contains('visited'),isB=el.classList.contains('bucket');
+      let matchF=true;
+      if(currentFilter==='visited')matchF=isV;
+      else if(currentFilter==='bucket')matchF=isB;
+      else if(currentFilter==='unvisited')matchF=!isV&&!isB;
+      el.classList.toggle('hidden',!(matchQ&&matchF));
+      if(matchQ&&matchF)visible++;
+    });
+    if(q&&visible>0)document.getElementById('cont-'+c.id).classList.add('open');
+  });
+}
+document.getElementById('search-inp').addEventListener('input',applyFilter);
+
+// ══════════════════════════════════════════════
+// STATS
+// ══════════════════════════════════════════════
+function updateStats(){
+  const v=visited.size,pct=Math.round(v/TOTAL*100);
+  document.getElementById('hs-v').textContent=v;
+  document.getElementById('hs-b').textContent=bucket.size;
+  document.getElementById('hs-p').textContent=pct+'%';
+  document.getElementById('hs-r').textContent=TOTAL-v;
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+
+function updateStatsPanel(){
+  // Furthest country
+  const homeName=settings.home||'India';
+  const homeCoords=COORDS[homeName]||[20,77];
+  let furthest={name:'—',dist:0,flag:'🌍'};
+  visited.forEach(name=>{
+    const coords=COORDS[name];
+    if(!coords)return;
+    const d=haversine(homeCoords[0],homeCoords[1],coords[0],coords[1]);
+    if(d>furthest.dist){
+      const c=CONTS.flatMap(c=>c.countries).find(x=>x.n===name);
+      furthest={name,dist:Math.round(d),flag:c?.f||'🌍'};
+    }
+  });
+
+  // Total spend
+  const totalSpend=Object.values(notes).reduce((s,n)=>s+(parseFloat(n.spend)||0),0);
+
+  // Unique tags
+  const allTags=Object.values(notes).flatMap(n=>n.tags||[]);
+  const topTag=allTags.length?Object.entries(allTags.reduce((a,t)=>{a[t]=(a[t]||0)+1;return a},{})).sort((a,b)=>b[1]-a[1])[0]?.[0]:'—';
+
+  // Total visits
+  const totalVisits=Object.values(notes).reduce((s,n)=>s+(n.visits||1),0);
+
+  // Year streak
+  const years=[...new Set(Object.values(notes).map(n=>n.year).filter(Boolean))].map(Number).sort();
+  let streak=0,maxStreak=0,prev=null;
+  years.forEach(y=>{if(prev&&y===prev+1)streak++;else streak=1;maxStreak=Math.max(maxStreak,streak);prev=y});
+
+  // Rarity score
+  const rarityScore=visited.size?Math.round([...visited].reduce((s,n)=>{
+    const c=CONTS.flatMap(c=>c.countries).find(x=>x.n===n);return s+(c?.r||1);
+  },0)/visited.size*10):0;
+
+  // Best year
+  const byYear={};Object.entries(notes).forEach(([name,nd])=>{if(nd.year&&visited.has(name)){byYear[nd.year]=(byYear[nd.year]||0)+1}});
+  const bestYear=Object.entries(byYear).sort((a,b)=>b[1]-a[1])[0];
+
+  const cards=[
+    {c:'var(--accent)',val:visited.size,unit:'countries',label:'Total countries visited'},
+    {c:'var(--green)',val:Math.round(visited.size/TOTAL*100)+'%',unit:'of the world',label:'Percentage of Earth explored'},
+    {c:'var(--red)',val:TOTAL-visited.size,unit:'to discover',label:'Countries still waiting for you'},
+    {c:'var(--gold)',val:furthest.name==='—'?'—':`${furthest.flag} ${furthest.name}`,unit:furthest.dist?`${furthest.dist.toLocaleString()} km away`:'',label:`Furthest from ${homeName}`},
+    {c:'var(--orange)',val:totalSpend>0?'₹'+Math.round(totalSpend/1000)+'K':'₹0',unit:'lifetime travel spend',label:'Approximate total across all trips'},
+    {c:'var(--purple)',val:rarityScore,unit:'/ 100 rarity score',label:'Based on how off-beaten your destinations are'},
+    {c:'var(--cyan)',val:totalVisits,unit:'total trips',label:'Including repeat visits to same country'},
+    {c:'var(--green)',val:maxStreak>0?maxStreak+'yr':'-',unit:'travel streak',label:'Consecutive years with at least one new country'},
+    {c:'var(--gold)',val:bestYear?bestYear[1]:'-',unit:bestYear?`countries in ${bestYear[0]}`:'countries',label:'Your most adventurous year'},
+    {c:'var(--accent)',val:bucket.size,unit:'on wishlist',label:'Countries you dream of visiting'},
+    {c:'var(--purple)',val:topTag==='—'?'—':topTag,unit:'travel style',label:'Your most common trip type'},
+    {c:'var(--red)',val:Object.values(notes).filter(n=>n.photo).length,unit:'photos',label:'Memories captured in the app'},
+  ];
+
+  document.getElementById('stats-grid').innerHTML=cards.map(s=>`
+    <div class="stat-card${s.wide?' wide':''}" style="--c:${s.c}">
+      <div class="sc-val">${s.val}</div>
+      <div class="sc-unit">${s.unit}</div>
+      <div class="sc-label">${s.label}</div>
+    </div>`).join('');
+
+  // Year chart
+  const chartYears=Object.keys(byYear).sort();
+  const maxY=Math.max(...Object.values(byYear),1);
+  document.getElementById('year-bars').innerHTML=chartYears.length
+    ?chartYears.map(yr=>`<div class="ybar-wrap">
+        <div class="ybar-count">${byYear[yr]}</div>
+        <div class="ybar" style="height:${Math.round(byYear[yr]/maxY*70)}px;background:var(--accent)"></div>
+        <div class="ybar-label">${yr}</div>
+      </div>`).join('')
+    :'<div style="color:var(--muted);font-size:11px;width:100%;text-align:center;padding:20px">Add years to your visits to see chart</div>';
+
+  // Continent breakdown
+  const contColors=['#f97316','#ef4444','#0047ff','#00c08b','#ff3b5c','#00c8ff','#7c3aed'];
+  document.getElementById('cb-rows').innerHTML=CONTS.map((c,i)=>{
+    const vc=c.countries.filter(x=>visited.has(x.n)).length;
+    const pct=Math.round(vc/c.countries.length*100);
+    return `<div class="cb-row">
+      <div class="cb-flag">${c.emoji}</div>
+      <div class="cb-label">${c.name}</div>
+      <div class="cb-track"><div class="cb-fill" style="width:${pct}%;background:${contColors[i]}"></div></div>
+      <div class="cb-count">${vc}/${c.countries.length}</div>
+    </div>`;
+  }).join('');
+
+  // AI suggestions
+  updateAISuggestions();
+}
+
+function updateAISuggestions(){
+  const v=[...visited];
+  const allCountries=CONTS.flatMap(c=>c.countries.map(x=>({...x,cont:c.name,contAc:c.ac})));
+  const unvisited=allCountries.filter(x=>!v.includes(x.n));
+
+  // Score based on: similar continent preference, rarity tier preference, bucket list bonus
+  const contPref={};CONTS.forEach(c=>{const vc=c.countries.filter(x=>v.includes(x.n)).length;contPref[c.id]=vc});
+  const avgRarity=v.length?v.reduce((s,n)=>{const c=allCountries.find(x=>x.n===n);return s+(c?.r||3)},0)/v.length:3;
+
+  const scored=unvisited.map(x=>{
+    const cont=CONTS.find(c=>c.countries.some(cc=>cc.n===x.n));
+    const contScore=(contPref[cont?.id]||0)*2;
+    const rarityMatch=10-Math.abs((x.r||3)-avgRarity)*1.5;
+    const bucketBonus=bucket.has(x.n)?15:0;
+    const score=contScore+rarityMatch+bucketBonus+Math.random()*5;
+    return {...x,score:Math.round(score),contAc:cont?.ac||'var(--accent)'};
+  }).sort((a,b)=>b.score-a.score).slice(0,4);
+
+  const reasons={
+    'family':'Perfect for family adventures',
+    'solo':'A solo traveller\'s dream',
+    'backpacking':'Ideal for backpackers',
+    'couple':'Romantic getaway destination',
+  };
+  const tagArr=[...new Set(Object.values(notes).flatMap(n=>n.tags||[]))];
+  const topTagReason=tagArr.length?reasons[tagArr[0]]:'Based on your travel pattern';
+
+  document.getElementById('ai-suggestions').innerHTML=scored.map(x=>`
+    <div class="ai-sug" onclick="highlightCountry('${x.n}')">
+      <div class="ai-flag">${x.f}</div>
+      <div class="ai-info">
+        <div class="ai-name">${x.n}</div>
+        <div class="ai-reason">${bucket.has(x.n)?'⭐ On your wishlist · ':x.r>=7?'💎 Rare destination · ':''}${topTagReason}</div>
+      </div>
+      <div class="ai-score" style="color:${x.contAc}">${x.score}</div>
+    </div>`).join('');
+}
+
+function highlightCountry(name){
+  showPanel('passport',document.getElementById('bnav-passport'));
+  const cont=CONTS.find(c=>c.countries.some(x=>x.n===name));
+  if(cont){
+    document.getElementById('cont-'+cont.id).classList.add('open');
+    setTimeout(()=>{
+      const el=document.getElementById('ci-'+name.replace(/[^a-z0-9]/gi,'_'));
+      if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+    },100);
+  }
+}
+
+// ══════════════════════════════════════════════
+// BADGES
+// ══════════════════════════════════════════════
+const BADGES=[
+  {id:'b1',icon:'🎫',name:'First Footprint',desc:'Visit your first country',check:()=>visited.size>=1,prog:()=>`${Math.min(visited.size,1)}/1`},
+  {id:'b2',icon:'✈️',name:'Frequent Flyer',desc:'Visit 10 countries',check:()=>visited.size>=10,prog:()=>`${visited.size}/10`},
+  {id:'b3',icon:'🗺️',name:'Quarter Master',desc:'Visit 25 countries',check:()=>visited.size>=25,prog:()=>`${visited.size}/25`},
+  {id:'b4',icon:'🏆',name:'Golden Passport',desc:'Visit 50 countries',check:()=>visited.size>=50,prog:()=>`${visited.size}/50`},
+  {id:'b5',icon:'💎',name:'Century Club',desc:'Visit 100 countries',check:()=>visited.size>=100,prog:()=>`${visited.size}/100`},
+  {id:'b6',icon:'👑',name:'Completionist',desc:'Visit all 195 countries',check:()=>visited.size>=195,prog:()=>`${visited.size}/195`},
+  {id:'b7',icon:'🌐',name:'7 Continents',desc:'At least one on every continent',check:()=>CONTS.every(c=>c.countries.some(x=>visited.has(x.n))),prog:()=>`${CONTS.filter(c=>c.countries.some(x=>visited.has(x.n))).length}/7`},
+  {id:'b8',icon:'🦁',name:'Safari Seeker',desc:'Visit 5 African countries',check:()=>CONTS.find(c=>c.id==='africa').countries.filter(x=>visited.has(x.n)).length>=5,prog:()=>`${CONTS.find(c=>c.id==='africa').countries.filter(x=>visited.has(x.n)).length}/5`},
+  {id:'b9',icon:'🐉',name:'Dragon Trail',desc:'Visit 5 Asian countries',check:()=>CONTS.find(c=>c.id==='asia').countries.filter(x=>visited.has(x.n)).length>=5,prog:()=>`${CONTS.find(c=>c.id==='asia').countries.filter(x=>visited.has(x.n)).length}/5`},
+  {id:'b10',icon:'🏰',name:'Europhile',desc:'Visit 10 European countries',check:()=>CONTS.find(c=>c.id==='europe').countries.filter(x=>visited.has(x.n)).length>=10,prog:()=>`${CONTS.find(c=>c.id==='europe').countries.filter(x=>visited.has(x.n)).length}/10`},
+  {id:'b11',icon:'🏝️',name:'Island Hopper',desc:'Visit Maldives, Seychelles, Fiji & Bahamas',check:()=>['Maldives','Seychelles','Fiji','Bahamas'].every(x=>visited.has(x)),prog:()=>`${['Maldives','Seychelles','Fiji','Bahamas'].filter(x=>visited.has(x)).length}/4`},
+  {id:'b12',icon:'🛕',name:'Silk Road',desc:'Visit Turkey, Iran, Uzbekistan & China',check:()=>['Turkey','Iran','Uzbekistan','China'].every(x=>visited.has(x)),prog:()=>`${['Turkey','Iran','Uzbekistan','China'].filter(x=>visited.has(x)).length}/4`},
+  {id:'b13',icon:'🧊',name:'Polar Pioneer',desc:'Visit Antarctica',check:()=>visited.has('Antarctica'),prog:()=>`${visited.has('Antarctica')?1:0}/1`},
+  {id:'b14',icon:'💎',name:'Rarity Hunter',desc:'Visit 5 countries with rarity 8+',check:()=>CONTS.flatMap(c=>c.countries).filter(x=>visited.has(x.n)&&x.r>=8).length>=5,prog:()=>`${CONTS.flatMap(c=>c.countries).filter(x=>visited.has(x.n)&&x.r>=8).length}/5`},
+  {id:'b15',icon:'📸',name:'Photographer',desc:'Upload photos for 10 countries',check:()=>Object.values(notes).filter(n=>n.photo).length>=10,prog:()=>`${Object.values(notes).filter(n=>n.photo).length}/10`},
+  {id:'b16',icon:'📝',name:'Journaler',desc:'Write notes for 5 countries',check:()=>Object.values(notes).filter(n=>n.note&&n.note.length>0).length>=5,prog:()=>`${Object.values(notes).filter(n=>n.note&&n.note.length>0).length}/5`},
+  {id:'b17',icon:'⭐',name:'Critic',desc:'Rate 10 countries',check:()=>Object.values(notes).filter(n=>n.rating>0).length>=10,prog:()=>`${Object.values(notes).filter(n=>n.rating>0).length}/10`},
+  {id:'b18',icon:'🪣',name:'Dreamer',desc:'Add 15 countries to wishlist',check:()=>bucket.size>=15,prog:()=>`${bucket.size}/15`},
+  {id:'b19',icon:'💸',name:'Spendthrift',desc:'Log travel spend for 10 countries',check:()=>Object.values(notes).filter(n=>n.spend>0).length>=10,prog:()=>`${Object.values(notes).filter(n=>n.spend>0).length}/10`},
+  {id:'b20',icon:'🔁',name:'Repeat Wanderer',desc:'Visit 3 countries more than once',check:()=>Object.values(notes).filter(n=>n.visits>=2).length>=3,prog:()=>`${Object.values(notes).filter(n=>n.visits>=2).length}/3`},
+];
+
+function updateBadges(){
+  document.getElementById('badges-grid').innerHTML=BADGES.map(b=>`
+    <div class="badge${b.check()?' earned':''}">
+      <div class="badge-icon">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+      <div class="badge-desc">${b.desc}</div>
+      <div class="badge-prog">${b.prog()}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════
+// TIMELINE
+// ══════════════════════════════════════════════
+function updateTimeline(){
+  const byYear={},noYear=[];
+  visited.forEach(name=>{
+    const nd=notes[name]||{};
+    const c=CONTS.find(c=>c.countries.some(x=>x.n===name));
+    const flag=c?.countries.find(x=>x.n===name)?.f||'';
+    if(nd.year){if(!byYear[nd.year])byYear[nd.year]=[];byYear[nd.year].push({name,flag})}
+    else noYear.push({name,flag});
+  });
+  const years=Object.keys(byYear).sort((a,b)=>b-a);
+  const wrap=document.getElementById('timeline-wrap');
+  if(!visited.size){
+    wrap.innerHTML='<div class="tl-empty">No countries visited yet.<br>Start stamping your passport!<br>Add years via the 📝 button to see them here.</div>';
+    return;
+  }
+  let html='';
+  years.forEach(yr=>{
+    html+=`<div class="year-group"><div class="year-label">${yr}</div><div class="tl-chips">`;
+    byYear[yr].forEach(c=>{html+=`<div class="tl-chip" onclick="highlightCountry('${c.name}')">${c.flag} ${c.name}</div>`});
+    html+='</div></div>';
+  });
+  if(noYear.length){
+    html+=`<div class="year-group"><div class="year-label" style="color:var(--muted)">Unknown Year</div><div class="tl-chips">`;
+    noYear.forEach(c=>{html+=`<div class="tl-chip" onclick="highlightCountry('${c.name}')">${c.flag} ${c.name}</div>`});
+    html+='</div></div>';
+  }
+  wrap.innerHTML=html;
+}
+
+// ══════════════════════════════════════════════
+// CHALLENGE
+// ══════════════════════════════════════════════
+const CHALLENGES=[
+  {text:'Visit a country you\'ve never been to in Asia this month',check:()=>CONTS.find(c=>c.id==='asia').countries.filter(x=>visited.has(x.n)).length,target:1,progress:()=>Math.min(CONTS.find(c=>c.id==='asia').countries.filter(x=>visited.has(x.n)).length,1)},
+  {text:'Add 5 countries to your wishlist',check:()=>bucket.size>=5,target:5,progress:()=>Math.min(bucket.size,5)},
+  {text:'Log a memory (photo or note) for 3 countries',check:()=>Object.values(notes).filter(n=>n.note||n.photo).length>=3,target:3,progress:()=>Math.min(Object.values(notes).filter(n=>n.note||n.photo).length,3)},
+  {text:'Visit a country with a Rarity score of 7 or higher',check:()=>CONTS.flatMap(c=>c.countries).filter(x=>visited.has(x.n)&&x.r>=7).length>=1,target:1,progress:()=>Math.min(CONTS.flatMap(c=>c.countries).filter(x=>visited.has(x.n)&&x.r>=7).length,1)},
+  {text:'Rate 5 countries you\'ve visited',check:()=>Object.values(notes).filter(n=>n.rating>0).length>=5,target:5,progress:()=>Math.min(Object.values(notes).filter(n=>n.rating>0).length,5)},
+];
+const challenge=CHALLENGES[new Date().getMonth()%CHALLENGES.length];
+
+function updateChallenge(){
+  document.getElementById('challenge-text').textContent=challenge.text;
+  const prog=challenge.progress(),pct=Math.round(prog/challenge.target*100);
+  document.getElementById('chal-fill').style.width=pct+'%';
+  document.getElementById('chal-pct').textContent=pct+'%';
+}
+
+// ══════════════════════════════════════════════
+// MILESTONES
+// ══════════════════════════════════════════════
+const MILESTONES=[
+  {n:1,msg:'🌍 First footprint! Your journey begins!'},{n:10,msg:'✈️ 10 countries! Frequent flyer unlocked!'},{n:25,msg:'🗺️ 25 countries! Quarter of the world!'},{n:50,msg:'🏆 50 countries! Golden passport!'},{n:100,msg:'💎 100 countries! Century club!'},{n:150,msg:'🚀 150 countries! Nearly everywhere!'},{n:195,msg:'👑 ALL 195! The ultimate explorer!'}
+];
+let lastMilestone=0;
+function checkMilestones(){
+  const v=visited.size;
+  const m=[...MILESTONES].reverse().find(x=>x.n<=v&&x.n>lastMilestone);
+  if(m){lastMilestone=m.n;document.getElementById('milestone-text').textContent=m.msg;document.getElementById('milestone-bar').classList.add('show')}
+}
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+function showPanel(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.bnav-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('screen').scrollTop=0;
+  currentPanel=id;
+  if(id==='badges')updateBadges();
+  if(id==='stats')updateStatsPanel();
+  if(id==='timeline')updateTimeline();
+  if(id==='settings'){updateChallenge();document.getElementById('home-select').value=settings.home||'India'}
+}
+
+function saveSettings(){settings.home=document.getElementById('home-select').value;saveLocal();showToast('Settings saved')}
+
+// ══════════════════════════════════════════════
+// EXPORT & RESET
+// ══════════════════════════════════════════════
+function exportData(){
+  const data=JSON.stringify(getData(),null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='huella-backup.json';a.click();
+  showToast('Data exported');
+}
+function resetAll(){
+  if(!confirm('Reset all your data? This cannot be undone.'))return;
+  visited.clear();bucket.clear();notes={};saveLocal();buildPassport();updateStats();updateBadges();showToast('Reset complete');
+}
+
+// ══════════════════════════════════════════════
+// CONFETTI
+// ══════════════════════════════════════════════
+const cv=document.getElementById('confetti-canvas');
+const ctx=cv.getContext('2d');
+cv.width=window.innerWidth;cv.height=window.innerHeight;
+window.addEventListener('resize',()=>{cv.width=window.innerWidth;cv.height=window.innerHeight});
+let parts=[],animId=null;
+function spawnConfetti(){
+  const cols=['#0047ff','#00c8ff','#00c08b','#ff3b5c','#ffb800','#f97316','#7c3aed'];
+  for(let i=0;i<40;i++)parts.push({
+    x:Math.random()*cv.width,y:-10,r:Math.random()*8+3,
+    color:cols[~~(Math.random()*cols.length)],
+    dx:(Math.random()-.5)*5,dy:Math.random()*5+2,
+    rot:Math.random()*360,drot:(Math.random()-.5)*10,
+    life:1,decay:Math.random()*.015+.008,
+    shape:Math.random()>.5?'r':'c'
+  });
+  if(!animId)animateConf();
+}
+function animateConf(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  parts=parts.filter(p=>p.life>0);
+  if(!parts.length){animId=null;return}
+  parts.forEach(p=>{
+    ctx.save();ctx.globalAlpha=p.life;ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;
+    if(p.shape==='r')ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);
+    else{ctx.beginPath();ctx.arc(0,0,p.r/2,0,Math.PI*2);ctx.fill()}
+    ctx.restore();
+    p.x+=p.dx;p.y+=p.dy;p.rot+=p.drot;p.life-=p.decay;
+  });
+  animId=requestAnimationFrame(animateConf);
+}
+
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+let toastTimer=null;
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  if(toastTimer)clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+async function init(){
+  const fill=document.getElementById('loading-fill');
+  fill.style.width='30%';
+  loadLocal();
+  fill.style.width='60%';
+  buildPassport();
+  updateStats();
+  updateBadges();
+  fill.style.width='100%';
+  setTimeout(()=>document.getElementById('loading').classList.add('hidden'),400);
+}
+init();
+</script>
+</body>
+</html>
